@@ -79,7 +79,6 @@ def create_cards(list_of_item_lists):
 
 def main(): 
     
-
     # Importing data from files into lists
     item_dict = import_from_textfile("data.txt")
     people_list = item_dict["person_items"]
