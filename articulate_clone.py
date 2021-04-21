@@ -95,6 +95,8 @@ def main():
     for item in (deck_of_cards):
         print(item)
 
+    bg = pygame.image.load("background.jpg")
+
     run = True
 
     while run:
@@ -104,6 +106,8 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+
+        WIN.blit(bg, (0, 0))
 
 
     pygame.quit()
