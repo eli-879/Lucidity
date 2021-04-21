@@ -11,11 +11,26 @@ FPS = 60
 clock = pygame.time.Clock()
 word_font = pygame.font.SysFont("calibri", 60)
 
-class Card:
+BG = pygame.image.load("background.jpg")
+CARD_BACK = pygame.image.load("card_back.jpg")
+CARD_BACK = pygame.transform.scale(CARD_BACK, (400, 300))
+
+
+
+
+class Card():
     
     def __init__(self, list_of_items):
-        self.__HEIGHT = 400
-        self.__WIDTH = 800
+        
+        self.__up = False
+        self.__down = True
+        self.__HEIGHT = 300
+        self.__WIDTH = 400
+        self.__xpos = (WIDTH - self.__WIDTH) / 2
+        self.__ypos_fdown = (HEIGHT - (self.__HEIGHT) * 2) / 3
+        self.__ypos_fup =  (2 * ((HEIGHT - (self.__HEIGHT) * 2) / 3)) + self.__HEIGHT
+        self.__card_back = CARD_BACK
+        self.__mask = self.__card_back.get_rect()
         self.__people_item = list_of_items[0]
         self.__world_item = list_of_items[1]
         self.__object_item = list_of_items[2]
@@ -32,9 +47,43 @@ class Card:
     def __str__(self):
         return str(self.__list_of_items)
 
-    def get_new_items(self):
-        for i in range(len(self.__list_of_items)):
-            self.__list_of_items[i] = 0
+    def draw(self, window):
+        if self.__up == True:
+            window.blit(self.__card_back, (self.__xpos, self.__ypos_fup))
+        elif self.__down == True:
+            window.blit(self.__card_back, (self.__xpos, self.__ypos_fdown))
+
+    def detect_collision(self):
+        pass
+
+    def get_x_coords(self):
+        return (self.__xpos, self.__xpos + self.__WIDTH)
+
+    def get_y_coords(self):
+        return (self.__ypos, self.__pos + self.__HEIGHT)
+
+    def set_up_true(self):
+        self.__up = True
+        self.__down = False
+
+    def set_down_true(self):
+        self.__up = False
+        self.__down = True
+
+
+class Deck:
+
+    def __init__(self, list_of_cards):
+        self.__list_of_cards = list_of_cards
+        self.__top_card = []
+        self.__used_cards = []
+
+    def draw(self, window):
+        self.__top_card.draw()
+
+
+
+
 
 def import_from_textfile(filename):
     with open(filename) as file:
@@ -91,19 +140,39 @@ def main():
     list_of_item_lists = [people_list, world_list, object_list, action_list, nature_list, random_list]
 
     deck_of_cards = create_cards(list_of_item_lists)
+    open_card = []
+
 
     for item in (deck_of_cards):
         print(item)
+
 
     run = True
 
     while run:
         clock.tick(FPS)
-        pygame.display.update()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x_pos, y_pos = pygame.mouse.get_pos()
+                print(x_pos, y_pos)
+                if (deck_of_cards[0].get_x_coords()[0] <= x_pos <= deck_of_cards[0].get_x_coords()[1]):
+                    deck_of_cards[0].set_up_true()
+                    
+
+
+
+
+        
+        WIN.blit(BG, (0,0))
+
+        deck_of_cards[0].draw(WIN)
+
+
+        pygame.display.update()
 
 
     pygame.quit()
