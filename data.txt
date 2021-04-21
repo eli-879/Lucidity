@@ -1,0 +1,7 @@
+{"person_items" : ["Albert Einstein", "Da Baby", "Leonardo Da Vinci", "Hulk", "Tyler1"],
+ "world_items" : ["The Eiffel Tower", "Sylvia Park", "University of Auckland", "The Leaning Tower of Pisa", "Summoner's Rift"],
+ "object_items" : ["Ban Hammer", "Ticket", "Laptop", "Legs", "Ice"],
+ "action_items" : ["Yeeting", "Shaking", "Sprinting", "Contemplating", "Lifting"],
+ "nature_items" : ["King Kong", "Godzilla", "Rat", "Marsupial", "Kakapo"],
+ "random_items" : ["YouTube", "Halo", "Deez", "Mana", "The Edge"]
+}
