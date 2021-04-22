@@ -31,6 +31,7 @@ class Card():
         self.__ypos_fup =  (2 * ((HEIGHT - (self.__HEIGHT) * 2) / 3)) + self.__HEIGHT
         self.__card_back = CARD_BACK
         self.__mask = self.__card_back.get_rect()
+
         self.__people_item = list_of_items[0]
         self.__world_item = list_of_items[1]
         self.__object_item = list_of_items[2]
@@ -38,11 +39,7 @@ class Card():
         self.__nature_item = list_of_items[4]
         self.__random_item = list_of_items[5]
         self.__list_of_items = [self.__people_item, self.__world_item, self.__object_item, self.__action_item, self.__nature_item, self.__random_item]
-        self.__people_item = None
-        self.__world_item = None
-        self.__object_item = None
-        self.__nature_item = None
-        self.__random_item = None
+        
 
     def __str__(self):
         return str(self.__list_of_items)
@@ -142,10 +139,8 @@ def main():
     deck_of_cards = create_cards(list_of_item_lists)
     open_card = []
 
-
-    for item in (deck_of_cards):
+    for item in deck_of_cards:
         print(item)
-
 
     run = True
 
@@ -160,7 +155,38 @@ def main():
                 x_pos, y_pos = pygame.mouse.get_pos()
                 print(x_pos, y_pos)
                 if (deck_of_cards[0].get_x_coords()[0] <= x_pos <= deck_of_cards[0].get_x_coords()[1]):
-                    deck_of_cards[0].set_up_true()
+                    
+
+                    if len(open_card) == 0:
+                        open_card.append(deck_of_cards[0])
+                        deck_of_cards.pop(0)
+                        open_card[0].set_up_true()
+
+                        print("Cards in deck")
+                        for item in deck_of_cards:
+                            print(item)
+
+                        print("Card in hand")
+                        print(open_card[0])
+
+                    elif len(open_card) > 0:
+                        open_card[0].set_down_true()
+                        deck_of_cards.append(open_card[0])
+                       
+                        open_card.pop(0)
+                        open_card.append(deck_of_cards[0])
+                        open_card[0].set_up_true()
+                        deck_of_cards.pop(0)
+
+                        print("Cards in deck")
+                        for item in deck_of_cards:
+                            print(item)
+
+                        print("Card in hand")
+                        print(open_card[0])
+
+
+                    
                     
 
 
@@ -170,6 +196,8 @@ def main():
         WIN.blit(BG, (0,0))
 
         deck_of_cards[0].draw(WIN)
+        if len(open_card) > 0:
+            open_card[0].draw(WIN)
 
 
         pygame.display.update()
