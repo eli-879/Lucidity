@@ -81,7 +81,7 @@ class Card():
         return (self.__xpos, self.__xpos + self.__WIDTH)
 
     def get_y_coords(self):
-        return (self.__ypos, self.__pos + self.__HEIGHT)
+        return (self.__ypos_fdown, self.__ypos_fdown + self.__HEIGHT)
 
     def set_up_true(self):
         self.__up = True
@@ -186,7 +186,9 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:                    #check if mouse is pressed
                 x_pos, y_pos = pygame.mouse.get_pos()
                 print(x_pos, y_pos)
-                if (deck_of_cards[0].get_x_coords()[0] <= x_pos <= deck_of_cards[0].get_x_coords()[1]):                 #if mouse click loc is within card range, go to next card
+                
+                if (deck_of_cards[0].get_x_coords()[0] <= x_pos <= deck_of_cards[0].get_x_coords()[1]) and \
+                    (deck_of_cards[0].get_y_coords()[0] <= y_pos <= deck_of_cards[0].get_y_coords()[1]):                 #if mouse click loc is within card range, go to next card
                     
                     if len(open_card) == 0:                 #if no cards are face up
                         open_card.append(deck_of_cards[0])  #add card to faceup pile, turn faceup and delete from deck
