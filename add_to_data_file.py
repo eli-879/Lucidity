@@ -38,7 +38,7 @@ def add_data_to_main_file(main_file, new_data, new_data_category):
 #print(json.dumps(mydict))
 #print("\n")
 
-new_data = format_data("lolchamps.txt")
-add_data_to_main_file("data.txt", new_data, "leaguechamp_items")
+new_data = format_data("pokemon.txt")
+add_data_to_main_file("data.txt", new_data, "pokemon_items")
 
 

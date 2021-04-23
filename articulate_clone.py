@@ -152,10 +152,11 @@ def create_cards(list_of_item_lists):
     num_cards = get_end_range(list_of_item_lists)
 
     for i in range(num_cards):
-        end_range = num_cards - i
-        print(end_range)
-
-        rand_indexes_for_items = generate_random_indexes(6, 0, end_range)                 #generate random indexes for card items
+        rand_indexes_for_items = []
+        for j in range(len(list_of_item_lists)):                            #generate random indexes for card items
+            rand_index = random.randrange(0, len(list_of_item_lists[j]))
+            rand_indexes_for_items.append(rand_index)
+            
         list_of_items = generate_item_characteristics(rand_indexes_for_items, items_list)
         delete_items(rand_indexes_for_items, items_list)
         rand_index_for_ace = generate_random_indexes(1, 0, 6)
@@ -188,8 +189,9 @@ def main():
     nature_list = item_dict["nature_items"]
     random_list = item_dict["random_items"]
     leaguechamp_list = item_dict["leaguechamp_items"]
+    pokemon_list = item_dict["pokemon_items"]
 
-    list_of_item_lists = [people_list, world_list, object_list, action_list, nature_list, leaguechamp_list]
+    list_of_item_lists = [people_list, world_list, object_list, action_list, pokemon_list, leaguechamp_list]
 
     deck_of_cards = create_cards(list_of_item_lists)
     open_card = []
