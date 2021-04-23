@@ -1,13 +1,14 @@
+import csv
 import json
 
-def format_data(filename):
-    with open(filename, "r") as file:
-        data = file.read()
-        data = data.split(", ")
+potential_countries = []
+potential_countries1 = ["Germany"]
 
-        return data
-        
-
+with open("worldcities.csv", encoding="utf8") as f:
+    data = csv.reader(f)
+    for row in data:
+        if row[5] == "US" and int(row[9]) > 1000000:
+            potential_countries.append(row[0])
 
 def add_data_to_main_file(main_file, new_data, new_data_category):
     with open(main_file, "r") as file:
@@ -22,8 +23,6 @@ def add_data_to_main_file(main_file, new_data, new_data_category):
             if replace_or_add == "r":
 
                 data[new_data_category] = new_data
-                for item in data.items():
-                    print(item, "\n")
 
                 with open(main_file, "w") as writing_file:
                     writing_file.write("{\n")
@@ -37,6 +36,7 @@ def add_data_to_main_file(main_file, new_data, new_data_category):
                         counter = counter + 1
 
                     writing_file.write("}")
+                    
 
             elif replace_or_add == "a":
                 for item in new_data:
@@ -74,12 +74,5 @@ def add_data_to_main_file(main_file, new_data, new_data_category):
 
             writing_file.write("}")
 
-
-#print(json.dumps(mydict))
-#print("\n")
-
-new_data = format_data("pokemon.txt")
-
-add_data_to_main_file("data.txt", new_data, "pokemon_items")
-
+add_data_to_main_file("data.txt", potential_countries1, "worldd_items")
 
