@@ -92,6 +92,15 @@ class Card():
         self.__down = True
 
 
+class Button:
+
+    def __init__(self, rect, text, x_pos, y_pos):
+        self.__rect = pygame.Rect(rect)
+        self.__text = text
+        self.__x_pos = x_pos
+        self.__y_pos = y_pos
+
+
 class Deck:
 
     def __init__(self, list_of_cards):
@@ -129,13 +138,23 @@ def delete_items(rand_indexes, list_of_item_lists):
     for i in range(len(rand_indexes)):
         list_of_item_lists[i].pop(rand_indexes[i])
 
+def get_end_range(list_of_item_lists):
+    min = 99999
+    for item in list_of_item_lists:
+        if len(item) < min:
+            min = len(item)
+
+    return min
+
 def create_cards(list_of_item_lists):
     list_of_card_objects = []
     items_list = list_of_item_lists
-    num_cards = len(list_of_item_lists[0])
+    num_cards = get_end_range(list_of_item_lists)
 
     for i in range(num_cards):
-        end_range = len(items_list[0])
+        end_range = num_cards - i
+        print(end_range)
+
         rand_indexes_for_items = generate_random_indexes(6, 0, end_range)                 #generate random indexes for card items
         list_of_items = generate_item_characteristics(rand_indexes_for_items, items_list)
         delete_items(rand_indexes_for_items, items_list)
@@ -168,8 +187,9 @@ def main():
     action_list = item_dict["action_items"]
     nature_list = item_dict["nature_items"]
     random_list = item_dict["random_items"]
+    leaguechamp_list = item_dict["leaguechamp_items"]
 
-    list_of_item_lists = [people_list, world_list, object_list, action_list, nature_list, random_list]
+    list_of_item_lists = [people_list, world_list, object_list, action_list, nature_list, leaguechamp_list]
 
     deck_of_cards = create_cards(list_of_item_lists)
     open_card = []
