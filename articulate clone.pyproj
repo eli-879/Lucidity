@@ -42,9 +42,12 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="animals.txt" />
     <Content Include="data.txt" />
     <Content Include="lolchamps.txt" />
+    <Content Include="objects.txt" />
     <Content Include="pokemon.txt" />
+    <Content Include="random.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

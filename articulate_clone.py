@@ -140,16 +140,19 @@ def delete_items(rand_indexes, list_of_item_lists):
 
 def get_end_range(list_of_item_lists):
     min = 99999
-    for item in list_of_item_lists:
-        if len(item) < min:
-            min = len(item)
-
-    return min
+    shortest_list = 0
+    for i in range(len(list_of_item_lists)):
+        if len(list_of_item_lists[i]) < min:
+            min = len(list_of_item_lists[i])
+            shortest_lst = i
+    return min, shortest_list
 
 def create_cards(list_of_item_lists):
     list_of_card_objects = []
     items_list = list_of_item_lists
-    num_cards = get_end_range(list_of_item_lists)
+    num_cards, shortest_list = get_end_range(list_of_item_lists)
+    print(num_cards, "- number of cards")
+    print(items_list[shortest_list])
 
     for i in range(num_cards):
         rand_indexes_for_items = []
@@ -165,8 +168,7 @@ def create_cards(list_of_item_lists):
 
     return list_of_card_objects
 
-def draw_deck(window, deck):
-    deck[0].draw(window)
+
 
 def draw_hand(window, hand_list):
     if len(hand_list) > 0:
@@ -175,7 +177,7 @@ def draw_hand(window, hand_list):
 def draw(window, deck_of_cards, open_hand):
     WIN.blit(BG, (0,0))
 
-    draw_deck(WIN, deck_of_cards)
+    deck_of_cards[0].draw(WIN)
     draw_hand(WIN, open_hand)
 
 def main(): 
@@ -191,7 +193,7 @@ def main():
     leaguechamp_list = item_dict["leaguechamp_items"]
     pokemon_list = item_dict["pokemon_items"]
 
-    list_of_item_lists = [people_list, world_list, object_list, action_list, pokemon_list, leaguechamp_list]
+    list_of_item_lists = [people_list, world_list, object_list, nature_list, pokemon_list, leaguechamp_list]
 
     deck_of_cards = create_cards(list_of_item_lists)
     open_card = []

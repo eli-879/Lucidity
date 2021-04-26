@@ -13,6 +13,7 @@ def add_data_to_main_file(main_file, new_data, new_data_category):
     with open(main_file, "r") as file:
         data = file.read()
         data = json.loads(data)
+        print(data)
         
         
     if new_data_category in data:
@@ -78,8 +79,8 @@ def add_data_to_main_file(main_file, new_data, new_data_category):
 #print(json.dumps(mydict))
 #print("\n")
 
-new_data = format_data("pokemon.txt")
+new_data = format_data("objects.txt")
 
-add_data_to_main_file("data.txt", new_data, "pokemon_items")
+add_data_to_main_file("data.txt", new_data, "object_items")
 
 
