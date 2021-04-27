@@ -94,23 +94,57 @@ class Card():
 
 class Button:
 
-    def __init__(self, rect, text, x_pos, y_pos):
+    def __init__(self, rect, command, **kwargs):
+        self.process_kwargs(kwargs)
         self.__rect = pygame.Rect(rect)
-        self.__text = text
-        self.__x_pos = x_pos
-        self.__y_pos = y_pos
+        self.__image = pygame.Surface(self.__rect.size).convert()
+        self.__command = command
+        self.text = self.font.render(self.text, True, self.font_color)
+        self.text_rect = self.text.get_rect(center = self.__rect.center)
+        #self.__text = text
 
+    def process_kwargs(self, kwargs):
+        settings = {
+            "color"               :pygame.Color("red"),
+            "text"                :"default",
+            "font"                :pygame.font.SysFont("Arial", 16),
+            "hover_color"         :(200,0,0),
+            "font_color"          :pygame.Color("white")       
+            }
 
-class Deck:
+        #can pass dictionary with many new settings into kwargs to change it
 
-    def __init__(self, list_of_cards):
-        self.__list_of_cards = list_of_cards
-        self.__top_card = []
-        self.__used_cards = []
+        for kwarg in kwargs:
+            if kwarg in settings:
+                settings[kwarg] = kwargs[kwarg]
+            else:
+                raise AttributeError("{} has no keyword: {}".format(self.__class__.__name__, kwarg))
 
-    def draw(self, window):
-        self.__top_card.draw()
+        self.__dict__.update(settings)
 
+    def get_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            self.on_click(event)
+
+    def on_click(self, event):
+        if self.__rect.collidepoint(event.pos):
+            self.__command()
+
+    def is_hovering(self):
+        if self.__rect.collidepoint(pygame.mouse.get_pos()):
+            return True
+
+    def draw(self, surf):
+        if self.is_hovering():
+            self.__image.fill(self.hover_color)
+        else:
+            self.__image.fill(self.color)
+            
+        surf.blit(self.__image, self.__rect)
+        surf.blit(self.text, self.text_rect)
+
+def button_pressed():
+    print("button pressed")
 
 def import_from_textfile(filename):
     with open(filename) as file:
@@ -168,17 +202,17 @@ def create_cards(list_of_item_lists):
 
     return list_of_card_objects
 
-
-
 def draw_hand(window, hand_list):
     if len(hand_list) > 0:
         hand_list[0].draw(window)
 
-def draw(window, deck_of_cards, open_hand):
+def draw(window, deck_of_cards, open_hand, btn):
     WIN.blit(BG, (0,0))
 
     deck_of_cards[0].draw(WIN)
     draw_hand(WIN, open_hand)
+    btn.draw(WIN)
+
 
 def main(): 
     
@@ -197,6 +231,8 @@ def main():
 
     deck_of_cards = create_cards(list_of_item_lists)
     open_card = []
+
+    btn = Button(rect=(50,50, 105,25), command = button_pressed)
 
     run = True
 
@@ -242,8 +278,11 @@ def main():
                         print("Card in hand")
                         print(open_card[0])
 
-        draw(WIN, deck_of_cards, open_card)
+            btn.get_event(event)
 
+        
+
+        draw(WIN, deck_of_cards, open_card, btn)
         pygame.display.update()
 
 
