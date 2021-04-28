@@ -3,6 +3,7 @@ import random
 import json
 
 pygame.init()
+pygame.mixer.init()
 
 WIDTH, HEIGHT = 1200, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -21,7 +22,7 @@ SPADES = pygame.image.load("spades.png")
 SPADES = pygame.transform.scale(SPADES, (30, 30))
 
 
-class Card():
+class Card:
     
     def __init__(self, list_of_items, ace_index):
         
@@ -91,7 +92,6 @@ class Card():
         self.__up = False
         self.__down = True
 
-
 class Button:
 
     def __init__(self, rect, command, **kwargs):
@@ -106,7 +106,7 @@ class Button:
     def process_kwargs(self, kwargs):
         settings = {
             "color"               :pygame.Color("red"),
-            "text"                :"default",
+            "text"                :"Start Round",
             "font"                :pygame.font.SysFont("Arial", 16),
             "hover_color"         :(200,0,0),
             "font_color"          :pygame.Color("white")       
@@ -143,8 +143,59 @@ class Button:
         surf.blit(self.__image, self.__rect)
         surf.blit(self.text, self.text_rect)
 
-def button_pressed():
-    print("button pressed")
+class Timer:
+
+    def __init__(self, rect, seconds, beep):
+        self.__rect = pygame.Rect(rect)
+        self.__image = pygame.Surface(self.__rect.size).convert()
+        self.__counter = seconds
+        self.__counter_fixed = seconds
+        self.__text = word_font.render(str(self.__counter), True, (0,128,0))
+        self.__text_rect = self.__text.get_rect(center = self.__rect.center)
+        self.__timer_event = pygame.USEREVENT + 1
+        self.__timer = pygame.time.set_timer(self.__timer_event, 1000)
+        self.__beep = beep
+
+    def get_timer_event(self):
+        return self.__timer_event
+
+    def reduce_counter(self, open_card, deck_of_cards):
+        self.__counter -= 1
+        self.__text = word_font.render(str(self.__counter), True, (0,128,0))
+
+        if self.__counter == 10:
+            pygame.mixer.Sound.play(self.__beep)
+
+        if self.__counter == 0:
+            pygame.mixer.Sound.play(self.__beep, loops=2)
+            
+
+        if self.__counter <= 0:
+            print("OVER!")
+            self.__timer = pygame.time.set_timer(self.__timer_event, 0)
+            if len(open_card) >= 1:
+                open_card[0].set_down_true()              
+                open_card.pop(0)
+
+                print("Cards in deck")
+                for item in deck_of_cards:
+                    print(item)
+
+                print("Card in hand")
+                
+            else:
+                pass
+
+    def reset(self):
+        print("D")
+        self.__counter = self.__counter_fixed + 1
+        self.__timer = pygame.time.set_timer(self.__timer_event, 1000)
+
+    def draw(self, window):
+        window.blit(self.__image, self.__rect)
+        window.blit(self.__text, self.__text_rect )
+
+
 
 def import_from_textfile(filename):
     with open(filename) as file:
@@ -206,12 +257,13 @@ def draw_hand(window, hand_list):
     if len(hand_list) > 0:
         hand_list[0].draw(window)
 
-def draw(window, deck_of_cards, open_hand, btn):
+def draw(window, deck_of_cards, open_hand, btn, timer):
     WIN.blit(BG, (0,0))
 
     deck_of_cards[0].draw(WIN)
     draw_hand(WIN, open_hand)
     btn.draw(WIN)
+    timer.draw(WIN)
 
 
 def main(): 
@@ -232,9 +284,20 @@ def main():
     deck_of_cards = create_cards(list_of_item_lists)
     open_card = []
 
-    btn = Button(rect=(50,50, 105,25), command = button_pressed)
+    ambient_music = pygame.mixer.Sound("jazz.mp3")
+    ambient_music.set_volume(0.1)
+    pygame.mixer.Sound.play(ambient_music, loops=-1)
+
+    beep = pygame.mixer.Sound("beep.wav")
+
+    timer = Timer(rect=(100, 166.66, 200, 25), seconds=15, beep = beep)
+    btn = Button(rect=(100, 66.66, 200, 25), command = timer.reset)
+
+    
+
 
     run = True
+
 
     while run:
         clock.tick(FPS)
@@ -243,12 +306,13 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
-            if event.type == pygame.MOUSEBUTTONDOWN:                    #check if mouse is pressed
+            if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):                    #check if mouse is pressed
                 x_pos, y_pos = pygame.mouse.get_pos()
                 print(x_pos, y_pos)
                 
                 if (deck_of_cards[0].get_x_coords()[0] <= x_pos <= deck_of_cards[0].get_x_coords()[1]) and \
-                    (deck_of_cards[0].get_y_coords()[0] <= y_pos <= deck_of_cards[0].get_y_coords()[1]):                 #if mouse click loc is within card range, go to next card
+                    (deck_of_cards[0].get_y_coords()[0] <= y_pos <= deck_of_cards[0].get_y_coords()[1]) \
+                    or ((event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE)):                 #if mouse click loc is within card range, go to next card
                     
                     if len(open_card) == 0:                 #if no cards are face up
                         open_card.append(deck_of_cards[0])  #add card to faceup pile, turn faceup and delete from deck
@@ -278,11 +342,13 @@ def main():
                         print("Card in hand")
                         print(open_card[0])
 
+
+            if event.type == timer.get_timer_event():
+                timer.reduce_counter(open_card, deck_of_cards)
             btn.get_event(event)
 
         
-
-        draw(WIN, deck_of_cards, open_card, btn)
+        draw(WIN, deck_of_cards, open_card, btn, timer)
         pygame.display.update()
 
 
