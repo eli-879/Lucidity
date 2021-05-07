@@ -11,7 +11,8 @@ pygame.display.set_caption("Articulate!")
 FPS = 60
 BLACK = (0, 0, 0)
 clock = pygame.time.Clock()
-word_font = pygame.font.SysFont("calibri", 20)
+card_word_font = pygame.font.SysFont("calibri", 20)
+peripherals_word_font = pygame.font.SysFont("calibri", 48)
 
 BG = pygame.image.load("background.jpg")
 CARD_BACK = pygame.image.load("card_back.jpg")
@@ -54,12 +55,12 @@ class Card:
     def draw(self, window):
         if self.__up == True:
             window.blit(self.__card_front, (self.__xpos, self.__ypos_fup))
-            category_0 = word_font.render(self.__list_of_items[0], 1, BLACK)
-            category_1 = word_font.render(self.__list_of_items[1], 1, BLACK)
-            category_2 = word_font.render(self.__list_of_items[2], 1, BLACK)
-            category_3 = word_font.render(self.__list_of_items[3], 1, BLACK)
-            category_4 = word_font.render(self.__list_of_items[4], 1, BLACK)
-            category_5 = word_font.render(self.__list_of_items[5], 1, BLACK)
+            category_0 = card_word_font.render(self.__list_of_items[0], 1, BLACK)
+            category_1 = card_word_font.render(self.__list_of_items[1], 1, BLACK)
+            category_2 = card_word_font.render(self.__list_of_items[2], 1, BLACK)
+            category_3 = card_word_font.render(self.__list_of_items[3], 1, BLACK)
+            category_4 = card_word_font.render(self.__list_of_items[4], 1, BLACK)
+            category_5 = card_word_font.render(self.__list_of_items[5], 1, BLACK)
 
             list_of_cat = [category_0, category_1, category_2, category_3, category_4, category_5]
 
@@ -74,9 +75,6 @@ class Card:
        
         elif self.__down == True:
             window.blit(self.__card_back, (self.__xpos, self.__ypos_fdown))
-
-    def detect_collision(self):
-        pass
 
     def get_x_coords(self):
         return (self.__xpos, self.__xpos + self.__WIDTH)
@@ -105,9 +103,9 @@ class Button:
 
     def process_kwargs(self, kwargs):
         settings = {
-            "color"               :pygame.Color("red"),
+            "color"               :pygame.Color("black"),
             "text"                :"Start Round",
-            "font"                :pygame.font.SysFont("Arial", 16),
+            "font"                :pygame.font.SysFont("Arial", 20),
             "hover_color"         :(200,0,0),
             "font_color"          :pygame.Color("white")       
             }
@@ -127,74 +125,132 @@ class Button:
             self.on_click(event)
 
     def on_click(self, event):
-        if self.__rect.collidepoint(event.pos):
+        if self.is_hovering():
             self.__command()
 
     def is_hovering(self):
         if self.__rect.collidepoint(pygame.mouse.get_pos()):
             return True
 
-    def draw(self, surf):
+    def draw(self, window):
         if self.is_hovering():
             self.__image.fill(self.hover_color)
         else:
             self.__image.fill(self.color)
             
-        surf.blit(self.__image, self.__rect)
-        surf.blit(self.text, self.text_rect)
+        window.blit(self.__image, self.__rect)
+        window.blit(self.text, self.text_rect)
 
 class Timer:
 
-    def __init__(self, rect, seconds, beep):
+    def __init__(self, rect, seconds, beep, **kwargs):
+        self.process_kwargs( kwargs)
         self.__rect = pygame.Rect(rect)
         self.__image = pygame.Surface(self.__rect.size).convert()
         self.__counter = seconds
         self.__counter_fixed = seconds
-        self.__text = word_font.render(str(self.__counter), True, (0,128,0))
+        self.__text = self.font.render(str(self.__counter), True, (255, 255, 255))
         self.__text_rect = self.__text.get_rect(center = self.__rect.center)
         self.__timer_event = pygame.USEREVENT + 1
         self.__timer = pygame.time.set_timer(self.__timer_event, 1000)
         self.__beep = beep
 
+    def process_kwargs(self, kwargs):
+        settings = {
+            "color"               :pygame.Color("black"),
+            "text"                :"Start Round",
+            "font"                :pygame.font.SysFont("Arial", 48),
+            "hover_color"         :(200,0,0),
+            "font_color"          :pygame.Color("white")       
+            }
+
+        #can pass dictionary with many new settings into kwargs to change it
+
+        for kwarg in kwargs:
+            if kwarg in settings:
+                settings[kwarg] = kwargs[kwarg]
+            else:
+                raise AttributeError("{} has no keyword: {}".format(self.__class__.__name__, kwarg))
+
+        self.__dict__.update(settings)
+
     def get_timer_event(self):
         return self.__timer_event
 
-    def reduce_counter(self, open_card, deck_of_cards):
+    def reduce_counter(self, open_card, deck_of_cards, score):
         self.__counter -= 1
-        self.__text = word_font.render(str(self.__counter), True, (0,128,0))
+        self.__text = self.font.render(str(self.__counter), True, (255,255,255))
+        self.__text_rect = self.__text.get_rect(center = self.__rect.center)
 
         if self.__counter == 10:
             pygame.mixer.Sound.play(self.__beep)
 
         if self.__counter == 0:
             pygame.mixer.Sound.play(self.__beep, loops=2)
+            score.reset_score()
             
 
         if self.__counter <= 0:
-            print("OVER!")
             self.__timer = pygame.time.set_timer(self.__timer_event, 0)
             if len(open_card) >= 1:
                 open_card[0].set_down_true()              
                 open_card.pop(0)
-
-                print("Cards in deck")
-                for item in deck_of_cards:
-                    print(item)
-
-                print("Card in hand")
                 
             else:
                 pass
 
     def reset(self):
-        print("D")
         self.__counter = self.__counter_fixed + 1
         self.__timer = pygame.time.set_timer(self.__timer_event, 1000)
 
     def draw(self, window):
+        self.__image.fill(self.color)
         window.blit(self.__image, self.__rect)
         window.blit(self.__text, self.__text_rect )
 
+class Score:
+
+    def __init__(self, rect, **kwargs):
+        self.process_kwargs(kwargs)
+        self.__rect = pygame.Rect(rect)
+        self.__image = pygame.Surface(self.__rect.size).convert()
+        self.__score = 0
+        self.__text = self.font.render(str(self.__score), True, (255, 255, 255))
+        self.__score_rect = self.__text.get_rect(center = self.__rect.center)
+
+    def process_kwargs(self, kwargs):
+        settings = {
+            "color"               :pygame.Color("red"),
+            "text"                :"Start Round",
+            "font"                :pygame.font.SysFont("Arial", 48),
+            "hover_color"         :(200,0,0),
+            "font_color"          :pygame.Color("white")       
+            }
+
+        #can pass dictionary with many new settings into kwargs to change it
+
+        for kwarg in kwargs:
+            if kwarg in settings:
+                settings[kwarg] = kwargs[kwarg]
+            else:
+                raise AttributeError("{} has no keyword: {}".format(self.__class__.__name__, kwarg))
+
+        self.__dict__.update(settings)
+
+    def increase_score(self):
+        self.__score += 1
+        self.__text = self.font.render(str(self.__score), True, (0,128,0))
+        self.__score_rect = self.__text.get_rect(center = self.__rect.center)
+
+    def reset_score(self):
+        self.__score = 0
+        self.__text = self.font.render(str(self.__score), True, (0,128,0))
+        self.__score_rect = self.__text.get_rect(center = self.__rect.center)
+
+    def draw(self, window):
+        self.__image.fill(self.color)
+        window.blit(self.__image,  self.__rect)
+        window.blit(self.__text, self.__score_rect)
 
 
 def import_from_textfile(filename):
@@ -257,14 +313,17 @@ def draw_hand(window, hand_list):
     if len(hand_list) > 0:
         hand_list[0].draw(window)
 
-def draw(window, deck_of_cards, open_hand, btn, timer):
+def draw(window, deck_of_cards, open_hand, start_button, timer):
     WIN.blit(BG, (0,0))
 
     deck_of_cards[0].draw(WIN)
     draw_hand(WIN, open_hand)
-    btn.draw(WIN)
+    start_button.draw(WIN)
     timer.draw(WIN)
 
+def start_button_press(timer, score):
+    timer.reset()
+    score.reset_score()
 
 def main(): 
     
@@ -289,13 +348,12 @@ def main():
     pygame.mixer.Sound.play(ambient_music, loops=-1)
 
     beep = pygame.mixer.Sound("beep.wav")
+    beep.set_volume(0.5)
 
-    timer = Timer(rect=(100, 166.66, 200, 25), seconds=15, beep = beep)
-    btn = Button(rect=(100, 66.66, 200, 25), command = timer.reset)
-
+    timer = Timer(rect=(100, 166.66, 200, 100), seconds=30, beep = beep)
+    score = Score(rect=(900, 66.66, 200, 100))
+    start_button = Button(rect=(100, 66.66, 200, 25), command = lambda timer=timer, score=score:start_button_press(timer, score))
     
-
-
     run = True
 
 
@@ -319,13 +377,6 @@ def main():
                         deck_of_cards.pop(0)
                         open_card[0].set_up_true()
 
-                        print("Cards in deck")
-                        for item in deck_of_cards:
-                            print(item)
-
-                        print("Card in hand")
-                        print(open_card[0])
-
                     elif len(open_card) > 0:                    # if a card is already face up
                         open_card[0].set_down_true()            #set curr face up to face down, add to back of deck, pop from faceup list
                         deck_of_cards.append(open_card[0])      #add new card to faceup list
@@ -335,20 +386,16 @@ def main():
                         open_card[0].set_up_true()
                         deck_of_cards.pop(0)
 
-                        print("Cards in deck")
-                        for item in deck_of_cards:
-                            print(item)
-
-                        print("Card in hand")
-                        print(open_card[0])
-
+                    score.increase_score()
 
             if event.type == timer.get_timer_event():
-                timer.reduce_counter(open_card, deck_of_cards)
-            btn.get_event(event)
+                timer.reduce_counter(open_card, deck_of_cards, score)
+
+            start_button.get_event(event)
 
         
-        draw(WIN, deck_of_cards, open_card, btn, timer)
+        draw(WIN, deck_of_cards, open_card, start_button, timer)
+        score.draw(WIN)
         pygame.display.update()
 
 
