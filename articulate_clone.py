@@ -32,8 +32,10 @@ class Card:
         self.__HEIGHT = 300
         self.__WIDTH = 400
         self.__xpos = (WIDTH - self.__WIDTH) / 2
+        self.__xpos_move = 0
         self.__ypos_fdown = (HEIGHT - (self.__HEIGHT) * 2) / 3
         self.__ypos_fup =  (2 * ((HEIGHT - (self.__HEIGHT) * 2) / 3)) + self.__HEIGHT
+        self.__ypos_move = 0
         self.__card_back = CARD_BACK
         self.__card_front = CARD_FRONT
         self.__ace = SPADES
@@ -64,8 +66,8 @@ class Card:
 
             list_of_cat = [category_0, category_1, category_2, category_3, category_4, category_5]
 
-            for i in range(len(list_of_cat)):
-                initial_y_pos = self.__ypos_fup + 41 - list_of_cat[i].get_height()
+            for i in range(len(list_of_cat)): # drawing open card
+                initial_y_pos = self.__ypos_fup + 41 - list_of_cat[i].get_height()      
                 y_gaps = 7.5 * i
                 center_box = ((36 - list_of_cat[i].get_height()) / 2) + ((i) * 36)
                 window.blit(list_of_cat[i], (self.__xpos + 60, initial_y_pos + center_box + y_gaps))
@@ -76,11 +78,47 @@ class Card:
         elif self.__down == True:
             window.blit(self.__card_back, (self.__xpos, self.__ypos_fdown))
 
+    def draw_open_card(self, window, x_pos, y_pos):
+        window.blit(self.__card_front, (x_pos, y_pos))
+        category_0 = card_word_font.render(self.__list_of_items[0], 1, BLACK)
+        category_1 = card_word_font.render(self.__list_of_items[1], 1, BLACK)
+        category_2 = card_word_font.render(self.__list_of_items[2], 1, BLACK)
+        category_3 = card_word_font.render(self.__list_of_items[3], 1, BLACK)
+        category_4 = card_word_font.render(self.__list_of_items[4], 1, BLACK)
+        category_5 = card_word_font.render(self.__list_of_items[5], 1, BLACK)
+
+        list_of_cat = [category_0, category_1, category_2, category_3, category_4, category_5]
+
+        for i in range(len(list_of_cat)): # drawing open card
+            initial_y_pos = y_pos + 41 - list_of_cat[i].get_height()      
+            y_gaps = 7.5 * i
+            center_box = ((36 - list_of_cat[i].get_height()) / 2) + ((i) * 36)
+            window.blit(list_of_cat[i], (x_pos + 60, initial_y_pos + center_box + y_gaps))
+
+            if i == self.__ace_index:
+                window.blit(self.__ace, (x_pos + 370 - 17.4, initial_y_pos + center_box + y_gaps - 5))
+
+
+
     def get_x_coords(self):
         return (self.__xpos, self.__xpos + self.__WIDTH)
 
-    def get_y_coords(self):
+    def get_y_coords_fup(self):
+        return (self.__ypos_fup, self.__ypos_fup + self.__HEIGHT)
+
+    def get_y_coords_fdown(self):
         return (self.__ypos_fdown, self.__ypos_fdown + self.__HEIGHT)
+
+
+    def add_x_coords(self, value):
+        self.__xpos += value
+
+    def add_y_coords_fup(self, value):
+        self.__ypos_fup += value
+
+    def add_y_coords_fdown(self, value):
+        self.__ypos_fdown += value
+
 
     def set_up_true(self):
         self.__up = True
@@ -129,6 +167,7 @@ class Button:
             self.__command()
 
     def is_hovering(self):
+        
         if self.__rect.collidepoint(pygame.mouse.get_pos()):
             return True
 
@@ -217,6 +256,7 @@ class Score:
         self.__score = 0
         self.__text = self.font.render(str(self.__score), True, (255, 255, 255))
         self.__score_rect = self.__text.get_rect(center = self.__rect.center)
+        self.__first_card = True
 
     def process_kwargs(self, kwargs):
         settings = {
@@ -237,12 +277,28 @@ class Score:
 
         self.__dict__.update(settings)
 
+    def is_first_card(self):
+        return self.__first_card
+
+    def set_first_card(self, value):
+        self.__first_card = value
+       
+
     def increase_score(self):
-        self.__score += 1
-        self.__text = self.font.render(str(self.__score), True, (0,128,0))
-        self.__score_rect = self.__text.get_rect(center = self.__rect.center)
+
+        if self.__first_card == True:
+            self.__first_card = False
+            pass
+        else:
+            self.__score += 1
+            self.__text = self.font.render(str(self.__score), True, (0,128,0))
+            self.__score_rect = self.__text.get_rect(center = self.__rect.center)
+
+
+        
 
     def reset_score(self):
+        self.__first_card = True
         self.__score = 0
         self.__text = self.font.render(str(self.__score), True, (0,128,0))
         self.__score_rect = self.__text.get_rect(center = self.__rect.center)
@@ -311,19 +367,55 @@ def create_cards(list_of_item_lists):
 
 def draw_hand(window, hand_list):
     if len(hand_list) > 0:
-        hand_list[0].draw(window)
+        
 
-def draw(window, deck_of_cards, open_hand, start_button, timer):
+        for i in range(len(hand_list) -1, -1, -1):
+            x_pos = hand_list[i].get_x_coords()[0]
+            y_pos = hand_list[i].get_y_coords_fup()[0]
+            hand_list[i].draw_open_card(window, x_pos + (i * 25), y_pos + (i * -25))
+
+def draw(window, deck_of_cards, open_hand, start_button, timer, skip_button):
     WIN.blit(BG, (0,0))
 
     deck_of_cards[0].draw(WIN)
     draw_hand(WIN, open_hand)
     start_button.draw(WIN)
     timer.draw(WIN)
+    skip_button.draw(WIN)
 
-def start_button_press(timer, score):
+def start_button_press(timer, score, deck_of_cards, open_card):
     timer.reset()
     score.reset_score()
+    deck_of_cards.extend(open_card)
+    for i in range(len(open_card)):
+        open_card.pop(0)
+
+def skip_button_press(deck_of_cards, open_card):     
+    if len(open_card) == 1:                                                    
+        open_card.insert(0, deck_of_cards[0])
+        deck_of_cards.pop(0)
+
+        print(open_card)
+
+    else:
+        pass
+
+def main_menu():
+    run = True
+    title_font = pygame.font.SysFont("comicsans", 70)
+    while run:
+        WIN.blit(BG, (0,0))
+        title_label = title_font.render("Press the mouse to begin...", 1, (255,255,255))
+        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 350))
+        pygame.display.update()
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame. MOUSEBUTTONDOWN:
+                main()
+    pygame.quit()
 
 def main(): 
     
@@ -352,7 +444,8 @@ def main():
 
     timer = Timer(rect=(100, 166.66, 200, 100), seconds=30, beep = beep)
     score = Score(rect=(900, 66.66, 200, 100))
-    start_button = Button(rect=(100, 66.66, 200, 25), command = lambda timer=timer, score=score:start_button_press(timer, score))
+    start_button = Button(rect=(100, 66.66, 200, 25), command = lambda timer=timer, score=score, deck_of_cards=deck_of_cards, open_card = open_card:start_button_press(timer, score, deck_of_cards, open_card))
+    skip_button = Button(rect=(100, 566.66, 200, 25), command = lambda deck_of_cards=deck_of_cards, open_card=open_card:skip_button_press(deck_of_cards, open_card), text="Skip Card")
     
     run = True
 
@@ -364,37 +457,58 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
+
+
             if event.type == pygame.MOUSEBUTTONDOWN or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):                    #check if mouse is pressed
                 x_pos, y_pos = pygame.mouse.get_pos()
                 print(x_pos, y_pos)
                 
+                
                 if (deck_of_cards[0].get_x_coords()[0] <= x_pos <= deck_of_cards[0].get_x_coords()[1]) and \
-                    (deck_of_cards[0].get_y_coords()[0] <= y_pos <= deck_of_cards[0].get_y_coords()[1]) \
+                    (deck_of_cards[0].get_y_coords_fdown()[0] <= y_pos <= deck_of_cards[0].get_y_coords_fdown()[1]) \
                     or ((event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE)):                 #if mouse click loc is within card range, go to next card
                     
+                    
+
+
                     if len(open_card) == 0:                 #if no cards are face up
                         open_card.append(deck_of_cards[0])  #add card to faceup pile, turn faceup and delete from deck
                         deck_of_cards.pop(0)
                         open_card[0].set_up_true()
+                        score.increase_score()
 
                     elif len(open_card) > 0:                    # if a card is already face up
                         open_card[0].set_down_true()            #set curr face up to face down, add to back of deck, pop from faceup list
                         deck_of_cards.append(open_card[0])      #add new card to faceup list
                        
                         open_card.pop(0)
-                        open_card.append(deck_of_cards[0])
+                        open_card.insert(0, deck_of_cards[0])
                         open_card[0].set_up_true()
                         deck_of_cards.pop(0)
+                        score.increase_score()
+                    
+                #if player clicks on open card, then switch the two available cards around
+                    
+                if (open_card[0].get_x_coords()[0] <= x_pos <= open_card[0].get_x_coords()[1]) and \
+                    (open_card[0].get_y_coords_fup()[0] <= y_pos <= open_card[0].get_y_coords_fup()[1]) and \
+                    len(open_card) == 2:
 
-                    score.increase_score()
+                    temp = open_card[0]
+                    open_card[0] = open_card[1]
+                    open_card[1] = temp
+
+
+                    
+                print(open_card)
 
             if event.type == timer.get_timer_event():
                 timer.reduce_counter(open_card, deck_of_cards, score)
 
             start_button.get_event(event)
+            skip_button.get_event(event)
 
         
-        draw(WIN, deck_of_cards, open_card, start_button, timer)
+        draw(WIN, deck_of_cards, open_card, start_button, timer, skip_button)
         score.draw(WIN)
         pygame.display.update()
 
@@ -402,7 +516,7 @@ def main():
     pygame.quit()
 
     
-main()
+main_menu()
 
     
     
