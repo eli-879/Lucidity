@@ -435,7 +435,7 @@ def main():
     deck_of_cards = create_cards(list_of_item_lists)
     open_card = []
 
-    ambient_music = pygame.mixer.Sound("jazz.mp3")
+    ambient_music = pygame.mixer.Sound("seashanty2.mp3")
     ambient_music.set_volume(0.1)
     pygame.mixer.Sound.play(ambient_music, loops=-1)
 
