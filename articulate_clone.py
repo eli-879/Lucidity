@@ -191,6 +191,7 @@ class Timer:
         self.__image = pygame.Surface(self.__rect.size).convert()
         self.__counter = seconds
         self.__counter_fixed = seconds
+        self.__start = False
 
         self.__text = self.font.render(str(self.__counter), True, (255, 255, 255))
         self.__text_rect = self.__text.get_rect(center = self.__rect.center)
@@ -224,26 +225,32 @@ class Timer:
         return self.__timer_event
 
     def reduce_counter(self, open_card, deck_of_cards, score):
-        self.__counter -= 1
-        self.__text = self.font.render(str(self.__counter), True, (255,255,255))
-        self.__text_rect = self.__text.get_rect(center = self.__rect.center)
+        if self.__start == True:
 
-        if self.__counter == 10:
-            pygame.mixer.Sound.play(self.__beep)
+            self.__counter -= 1
+            self.__text = self.font.render(str(self.__counter), True, (255,255,255))
+            self.__text_rect = self.__text.get_rect(center = self.__rect.center)
 
-        if self.__counter == 0:
-            pygame.mixer.Sound.play(self.__beep, loops=2)
-            score.reset_score()
+            if self.__counter == 10:
+                pygame.mixer.Sound.play(self.__beep)
+
+            if self.__counter == 0:
+                pygame.mixer.Sound.play(self.__beep, loops=2)
+                score.reset_score()
             
 
-        if self.__counter <= 0:
-            self.__timer = pygame.time.set_timer(self.__timer_event, 0)
-            if len(open_card) >= 1:
-                open_card[0].set_down_true()              
-                open_card.pop(0)
+            if self.__counter <= 0:
+                self.__timer = pygame.time.set_timer(self.__timer_event, 0)
+                if len(open_card) >= 1:
+                    open_card[0].set_down_true()              
+                    open_card.pop(0)
                 
-            else:
-                pass
+                else:
+                    pass
+
+    def start_timer(self):
+        self.__start = True
+
 
     def reset(self):
         self.__counter = self.__counter_fixed + 1
@@ -391,6 +398,7 @@ def draw(window, deck_of_cards, open_hand, start_button, timer, skip_button):
     skip_button.draw(WIN)
 
 def start_button_press(timer, score, deck_of_cards, open_card):
+    timer.start_timer()
     timer.reset()
     score.reset_score()
     deck_of_cards.extend(open_card)
@@ -464,7 +472,6 @@ def main():
     
     run = True
 
-
     while run:
         clock.tick(FPS)
 
@@ -509,7 +516,7 @@ def main():
                         open_card[1] = temp
            
                     print(open_card)
-
+            
             if event.type == timer.get_timer_event():
                 timer.reduce_counter(open_card, deck_of_cards, score)
 
