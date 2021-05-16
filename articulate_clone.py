@@ -7,11 +7,13 @@ pygame.mixer.init()
 
 WIDTH, HEIGHT = 1280, 720
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Lucidity!")
+pygame.display.set_caption("Lucidity")
 FPS = 60
 BLACK = (0, 0, 0)
 GREY = (150, 150, 150)
 clock = pygame.time.Clock()
+
+#adding assets
 card_word_font = pygame.font.Font("Assets/Font/upheavtt.ttf", 20)
 main_menu_font = pygame.font.Font("Assets/Font/upheavtt.ttf", 72)
 peripherals_word_font = pygame.font.Font("Assets/Font/upheavtt.ttf", 20)
@@ -24,6 +26,8 @@ CARD_FRONT = pygame.transform.scale(CARD_FRONT, (400, 300))
 CARD_BACK = pygame.transform.scale(CARD_BACK, (400, 300))
 SPADES = pygame.image.load("Assets/CardImages/spades.png")
 SPADES = pygame.transform.scale(SPADES, (30, 30))
+LOGO = pygame.image.load("Assets/logo.png")
+LOGO = pygame.transform.scale(LOGO, (480, 171))
 
 
 class Card:
@@ -133,7 +137,7 @@ class Card:
 
 class Button:
 
-    def __init__(self, rect, command, **kwargs):
+    def __init__(self, rect, command=None, **kwargs):
         self.process_kwargs(kwargs)
         self.__rect = pygame.Rect(rect)
         self.__image = pygame.Surface(self.__rect.size).convert()
@@ -170,7 +174,6 @@ class Button:
             self.__command()
 
     def is_hovering(self):
-        
         if self.__rect.collidepoint(pygame.mouse.get_pos()):
             return True
 
@@ -323,6 +326,7 @@ class Score:
         window.blit(self.__text, self.__score_rect)
         window.blit(self.__title, self.__title_rect)
 
+#Generating Cards
 
 def import_from_textfile(filename):
     with open(filename) as file:
@@ -383,7 +387,15 @@ def create_cards(list_of_item_lists):
 
     return list_of_card_objects
 
+#Drawing Functions
+
+def draw_main_menu(window, start_button, options_button, quit_button):
+    start_button.draw(window)
+    options_button.draw(window)
+    quit_button.draw(window)
+
 def draw_hand(window, hand_list):
+    #drawing open hand cards - can't put in object as need to edit location per draw
     if len(hand_list) > 0:
         
         for i in range(len(hand_list) -1, -1, -1):
@@ -391,14 +403,15 @@ def draw_hand(window, hand_list):
             y_pos = hand_list[i].get_y_coords_fup()[0]
             hand_list[i].draw_open_card(window, x_pos + (i * 25), y_pos + (i * -25))
 
-def draw(window, deck_of_cards, open_hand, start_button, timer, skip_button):
+def draw_game(window, deck_of_cards, open_hand, start_button, timer, skip_button):
     WIN.blit(BG, (0,0))
-    #WIN.fill(GREY)
     deck_of_cards[0].draw(WIN)
     draw_hand(WIN, open_hand)
     start_button.draw(WIN)
     timer.draw(WIN)
     skip_button.draw(WIN)
+
+#Button Functions
 
 def start_button_press(timer, score, deck_of_cards, open_card):
     timer.start_timer()
@@ -415,28 +428,77 @@ def skip_button_press(deck_of_cards, open_card):
 
         print(open_card)
 
-    else:
-        pass
+def play():
+    main()
+
+def quit():
+    pygame.quit()
 
 def main_menu():
     run = True
+
+    button_width = 360
+    button_height = 100
+
+    button_x = (WIDTH - button_width) / 2
+    button_y = (HEIGHT - button_height) / 3
+
+    start_button = Button(rect=(button_x, button_y, 360, 100), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48), text="Play", command=play)
+    options_button = Button(rect=(button_x, button_y+110, 360, 100), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48), text="Options")
+    quit_button = Button(rect=(button_x, button_y+220, 360, 100), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48),text="Quit", command = quit)
+
+    logo_rect = pygame.Surface(LOGO.get_size())
+    logo_size = LOGO.get_size()
+    logo_x = (WIDTH - logo_size[0]) / 2
+
+    ambient_music = pygame.mixer.Sound("Assets/Sounds/seashanty2.mp3")
+    ambient_music.set_volume(0.1)
+    pygame.mixer.Sound.play(ambient_music, loops=-1)
     
     while run:
         
         WIN.blit(BG, (0,0))
-        title_label = main_menu_font.render("Press the mouse to begin...", 1, (255,255,255))
-        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 300))
-        pygame.display.update()
+        WIN.blit(LOGO, (logo_x, 20))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            if event.type == pygame. MOUSEBUTTONDOWN:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 main()
 
+            start_button.get_event(event)
+            quit_button.get_event(event)
 
+
+        draw_main_menu(WIN, start_button, options_button, quit_button)
+
+        pygame.display.update()
         
     pygame.quit()
+
+def options_menu():
+    run = True
+    button_width = 360
+    button_height = 100
+
+    button_x = (WIDTH - button_width) / 2
+    button_y = (HEIGHT - button_height) / 3
+
+    back_button = Button(rect=(button_x, button_y, 360, 100), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48), text="Play", command=play)
+
+    while run:
+        WIN.blit(BG, (0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+            start_button.get_event(event)
+            quit_button.get_event(event)
+
+
+
+
 
 def main(): 
     
@@ -452,16 +514,10 @@ def main():
     leaguechamp_list = item_dict["leaguechamp_items"]
     pokemon_list = item_dict["pokemon_items"]
 
-    print(len(world_list), "D")
-
-    list_of_item_lists = [people_list, world_list, object_list, nature_list, pokemon_list, leaguechamp_list]
+    list_of_item_lists = [people_list, world_list, object_list, nature_list, action_list, leaguechamp_list]
 
     deck_of_cards = create_cards(list_of_item_lists)
     open_card = []
-
-    ambient_music = pygame.mixer.Sound("Assets/Sounds/seashanty2.mp3")
-    ambient_music.set_volume(0.1)
-    pygame.mixer.Sound.play(ambient_music, loops=-1)
 
     beep = pygame.mixer.Sound("Assets/Sounds/beep.wav")
     beep.set_volume(0.5)
@@ -530,7 +586,7 @@ def main():
             skip_button.get_event(event)
 
         
-        draw(WIN, deck_of_cards, open_card, start_button, timer, skip_button)
+        draw_game(WIN, deck_of_cards, open_card, start_button, timer, skip_button)
         score.draw(WIN)
         pygame.display.update()
 

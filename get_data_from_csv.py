@@ -4,11 +4,11 @@ import json
 potential_countries = []
 potential_countries1 = ["Germany"]
 
-with open("worldcities.csv", encoding="utf8") as f:
+with open("verbs.csv", encoding="utf8") as f:
     data = csv.reader(f)
     for row in data:
-        if row[5] == "RU" and int(row[9]) > 1000000:
-            potential_countries.append(row[0])
+        if len(row[2]) > 1:
+            potential_countries.append(row[2])
 
 print(potential_countries)
 
@@ -76,5 +76,5 @@ def add_data_to_main_file(main_file, new_data, new_data_category):
 
             writing_file.write("}")
 
-add_data_to_main_file("data.txt", potential_countries, "world_items")
+add_data_to_main_file("TextFiles/data.txt", potential_countries, "action_items")
 
