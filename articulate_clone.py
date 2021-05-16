@@ -12,17 +12,17 @@ FPS = 60
 BLACK = (0, 0, 0)
 GREY = (150, 150, 150)
 clock = pygame.time.Clock()
-card_word_font = pygame.font.Font("upheavtt.ttf", 20)
-main_menu_font = pygame.font.Font("upheavtt.ttf", 72)
-peripherals_word_font = pygame.font.Font("upheavtt.ttf", 20)
+card_word_font = pygame.font.Font("Assets/Font/upheavtt.ttf", 20)
+main_menu_font = pygame.font.Font("Assets/Font/upheavtt.ttf", 72)
+peripherals_word_font = pygame.font.Font("Assets/Font/upheavtt.ttf", 20)
 
-BG = pygame.image.load("background.jpg")
-CARD_BACK = pygame.image.load("card_back_v2.jpg")
-CARD_FRONT = pygame.image.load("card_front.png")
-START_BUTTON = pygame.image.load("play.png")
+BG = pygame.image.load("Assets/background.jpg")
+CARD_BACK = pygame.image.load("Assets/CardImages/card_back_v2.jpg")
+CARD_FRONT = pygame.image.load("Assets/CardImages/card_front.png")
+START_BUTTON = pygame.image.load("Assets/play.png")
 CARD_FRONT = pygame.transform.scale(CARD_FRONT, (400, 300))
 CARD_BACK = pygame.transform.scale(CARD_BACK, (400, 300))
-SPADES = pygame.image.load("spades.png")
+SPADES = pygame.image.load("Assets/CardImages/spades.png")
 SPADES = pygame.transform.scale(SPADES, (30, 30))
 
 
@@ -146,7 +146,7 @@ class Button:
         settings = {
             "color"               :pygame.Color("black"),
             "text"                :"Start Round",
-            "font"                :pygame.font.Font("upheavtt.ttf", 20),
+            "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 20),
             "hover_color"         :(200,0,0),
             "font_color"          :pygame.Color("white")       
             }
@@ -206,7 +206,7 @@ class Timer:
         settings = {
             "color"               :pygame.Color("black"),
             "text"                :"Start Round",
-            "font"                :pygame.font.Font("upheavtt.ttf", 36),
+            "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 36),
             "hover_color"         :(200,0,0),
             "font_color"          :pygame.Color("white")       
             }
@@ -280,7 +280,7 @@ class Score:
         settings = {
             "color"               :pygame.Color("red"),
             "text"                :"Start Round",
-            "font"                :pygame.font.Font("upheavtt.ttf", 36),
+            "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 36),
             "hover_color"         :(200,0,0),
             "font_color"          :pygame.Color("white")       
             }
@@ -356,7 +356,10 @@ def get_end_range(list_of_item_lists):
     for i in range(len(list_of_item_lists)):
         if len(list_of_item_lists[i]) < min:
             min = len(list_of_item_lists[i])
-            shortest_lst = i
+            shortest_list = i
+    
+
+    print(min, shortest_list)
     return min, shortest_list
 
 def create_cards(list_of_item_lists):
@@ -438,8 +441,9 @@ def main_menu():
 def main(): 
     
     # Importing data from files into lists
-    item_dict = import_from_textfile("data.txt")
+    item_dict = import_from_textfile("TextFiles/data.txt")
     people_list = item_dict["person_items"]
+    
     world_list = item_dict["world_items"]
     object_list = item_dict["object_items"]
     action_list = item_dict["action_items"]
@@ -448,16 +452,18 @@ def main():
     leaguechamp_list = item_dict["leaguechamp_items"]
     pokemon_list = item_dict["pokemon_items"]
 
+    print(len(world_list), "D")
+
     list_of_item_lists = [people_list, world_list, object_list, nature_list, pokemon_list, leaguechamp_list]
 
     deck_of_cards = create_cards(list_of_item_lists)
     open_card = []
 
-    ambient_music = pygame.mixer.Sound("seashanty2.mp3")
+    ambient_music = pygame.mixer.Sound("Assets/Sounds/seashanty2.mp3")
     ambient_music.set_volume(0.1)
     pygame.mixer.Sound.play(ambient_music, loops=-1)
 
-    beep = pygame.mixer.Sound("beep.wav")
+    beep = pygame.mixer.Sound("Assets/Sounds/beep.wav")
     beep.set_volume(0.5)
 
     card_fdown_x = deck_of_cards[0].get_x_coords()

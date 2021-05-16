@@ -7,8 +7,10 @@ potential_countries1 = ["Germany"]
 with open("worldcities.csv", encoding="utf8") as f:
     data = csv.reader(f)
     for row in data:
-        if row[5] == "US" and int(row[9]) > 1000000:
+        if row[5] == "RU" and int(row[9]) > 1000000:
             potential_countries.append(row[0])
+
+print(potential_countries)
 
 def add_data_to_main_file(main_file, new_data, new_data_category):
     with open(main_file, "r") as file:
@@ -74,5 +76,5 @@ def add_data_to_main_file(main_file, new_data, new_data_category):
 
             writing_file.write("}")
 
-add_data_to_main_file("data.txt", potential_countries1, "worldd_items")
+add_data_to_main_file("data.txt", potential_countries, "world_items")
 

@@ -42,12 +42,30 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="animals.txt" />
-    <Content Include="data.txt" />
-    <Content Include="lolchamps.txt" />
-    <Content Include="objects.txt" />
-    <Content Include="pokemon.txt" />
-    <Content Include="random.txt" />
+    <Folder Include="Assets\" />
+    <Folder Include="Assets\CardImages\" />
+    <Folder Include="Assets\Font\" />
+    <Folder Include="Assets\Sounds\" />
+    <Folder Include="TextFiles\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\background.jpg" />
+    <Content Include="Assets\CardImages\card_back.jpg" />
+    <Content Include="Assets\CardImages\card_back_v2.jpg" />
+    <Content Include="Assets\CardImages\card_front.png" />
+    <Content Include="Assets\CardImages\spades.png" />
+    <Content Include="Assets\Font\upheavtt.ttf" />
+    <Content Include="Assets\play.png" />
+    <Content Include="Assets\Sounds\beep.wav" />
+    <Content Include="Assets\Sounds\jazz.mp3" />
+    <Content Include="Assets\Sounds\seashanty2.mp3" />
+    <Content Include="TextFiles\animals.txt" />
+    <Content Include="TextFiles\data.txt" />
+    <Content Include="TextFiles\lolchamps.txt" />
+    <Content Include="TextFiles\lolitems.txt" />
+    <Content Include="TextFiles\objects.txt" />
+    <Content Include="TextFiles\pokemon.txt" />
+    <Content Include="TextFiles\random.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
