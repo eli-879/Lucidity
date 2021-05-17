@@ -272,17 +272,17 @@ class Score:
         self.__rect = pygame.Rect(rect)
         self.__image = pygame.Surface(self.__rect.size).convert()
         self.__score = 0
-        self.__text = self.font.render(str(self.__score), True, (255, 255, 255))
-        self.__score_rect = self.__text.get_rect(center = self.__rect.center)
-        self.__title = self.font.render("Score:", True, (255, 255, 255))
-        self.__title_rect = self.__text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
+        self.__score_text = self.font.render(str(self.__score), True, (255, 255, 255))
+        self.__score_rect = self.__score_text.get_rect(center = self.__rect.center)
+        self.__title = self.font.render(self.text, True, (255, 255, 255))
+        self.__title_rect = self.__score_text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
 
         self.__first_card = True
 
     def process_kwargs(self, kwargs):
         settings = {
             "color"               :pygame.Color("red"),
-            "text"                :"Start Round",
+            "text"                :"Score:",
             "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 36),
             "hover_color"         :(200,0,0),
             "font_color"          :pygame.Color("white")       
@@ -311,20 +311,62 @@ class Score:
             pass
         else:
             self.__score += 1
-            self.__text = self.font.render(str(self.__score), True, (0,128,0))
-            self.__score_rect = self.__text.get_rect(center = self.__rect.center)        
+            self.__score_text = self.font.render(str(self.__score), True, (0,128,0))
+            self.__score_rect = self.__score_text.get_rect(center = self.__rect.center)
+           
 
     def reset_score(self):
         self.__first_card = True
         self.__score = 0
-        self.__text = self.font.render(str(self.__score), True, (0,128,0))
-        self.__score_rect = self.__text.get_rect(center = self.__rect.center)
+        self.__score_text = self.font.render(str(self.__score), True, (0,128,0))
+        self.__score_rect = self.__score_text.get_rect(center = self.__rect.center)
 
     def draw(self, window):
         self.__image.fill(self.color)
         window.blit(self.__image,  self.__rect)
-        window.blit(self.__text, self.__score_rect)
+        window.blit(self.__score_text, self.__score_rect)
         window.blit(self.__title, self.__title_rect)
+
+class Sound:
+    def __init__(self, rect, **kwargs):
+        self.__rect = pygame.Rect(rect)
+        self.__image = pygame.Surface(self.__rect.size).convert()
+        self.__sound = 0.5
+        self.__sound_text = self.font.render(str(self.__sound), True, (255, 255, 255))
+        self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
+        self.__title = self.font.render(self.text, True, (255, 255, 255))
+        self.__title_rect = self.__score_text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
+
+    def process_kwargs(self, kwargs):
+        settings = {
+            "color"               :pygame.Color("red"),
+            "text"                :"Sound",
+            "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 36),
+            "hover_color"         :(200,0,0),
+            "font_color"          :pygame.Color("white")       
+            }
+
+        #can pass dictionary with many new settings into kwargs to change it
+
+        for kwarg in kwargs:
+            if kwarg in settings:
+                settings[kwarg] = kwargs[kwarg]
+            else:
+                raise AttributeError("{} has no keyword: {}".format(self.__class__.__name__, kwarg))
+
+        self.__dict__.update(settings)
+
+    def increase_sound(self):
+        if self.__sound < 1:
+            self.__sound += 0.1
+            self.__sound_text = self.font.render(str(self.__sound), True, (0,128,0))
+            self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
+
+    def decrease_sound(self):
+        if self.__sound > 0:
+            self.__sound -= 0.1
+            self.__sound_text = self.font.render(str(self.__sound), True, (0,128,0))
+            self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
 
 #Generating Cards
 
@@ -394,6 +436,11 @@ def draw_main_menu(window, start_button, options_button, quit_button):
     options_button.draw(window)
     quit_button.draw(window)
 
+def draw_options_menu(window, sound_level, sound_quieter, sound_louder):
+    sound_level.draw(WIN)
+    sound_quieter.draw(WIN)
+    sound_louder.draw(WIN)
+
 def draw_hand(window, hand_list):
     #drawing open hand cards - can't put in object as need to edit location per draw
     if len(hand_list) > 0:
@@ -403,13 +450,14 @@ def draw_hand(window, hand_list):
             y_pos = hand_list[i].get_y_coords_fup()[0]
             hand_list[i].draw_open_card(window, x_pos + (i * 25), y_pos + (i * -25))
 
-def draw_game(window, deck_of_cards, open_hand, start_button, timer, skip_button):
+def draw_game(window, deck_of_cards, open_hand, start_button, timer, skip_button, main_menu):
     WIN.blit(BG, (0,0))
     deck_of_cards[0].draw(WIN)
     draw_hand(WIN, open_hand)
     start_button.draw(WIN)
     timer.draw(WIN)
     skip_button.draw(WIN)
+    main_menu.draw(WIN)
 
 #Button Functions
 
@@ -434,7 +482,12 @@ def play():
 def quit():
     pygame.quit()
 
+def options():
+    options_menu()
+
+
 def main_menu():
+    pygame.mixer.stop()
     run = True
 
     button_width = 360
@@ -444,7 +497,7 @@ def main_menu():
     button_y = (HEIGHT - button_height) / 3
 
     start_button = Button(rect=(button_x, button_y, 360, 100), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48), text="Play", command=play)
-    options_button = Button(rect=(button_x, button_y+110, 360, 100), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48), text="Options")
+    options_button = Button(rect=(button_x, button_y+110, 360, 100), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48), text="Options", command=options)
     quit_button = Button(rect=(button_x, button_y+220, 360, 100), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48),text="Quit", command = quit)
 
     logo_rect = pygame.Surface(LOGO.get_size())
@@ -467,6 +520,7 @@ def main_menu():
                 main()
 
             start_button.get_event(event)
+            options_button.get_event(event)
             quit_button.get_event(event)
 
 
@@ -477,27 +531,43 @@ def main_menu():
     pygame.quit()
 
 def options_menu():
+
+    def increase_vol(sound_level):
+        sound_level.increase_score()
+
+    def decrease_vol(sound_level):
+        sound_level.decrease_score()
+
     run = True
-    button_width = 360
-    button_height = 100
+
+    button_width = 200
+    button_height = 70
 
     button_x = (WIDTH - button_width) / 2
     button_y = (HEIGHT - button_height) / 3
 
-    back_button = Button(rect=(button_x, button_y, 360, 100), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48), text="Play", command=play)
+    sound_level = Score(rect=(button_x, button_y, 200, button_height), text="Sound")
+    sound_quieter_button = Button(rect=(button_x - 90 , button_y, button_height, button_height), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48), text="-", command=lambda sound_level=sound_level:decrease_vol(sound_level))
+    sound_louder_button = Button(rect=(button_x + 220, button_y, button_height, button_height), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48),text="+", command=lambda sound_level=sound_level:increase_vol(sound_level))
+
+    sound_level.set_first_card(False)
 
     while run:
-        WIN.blit(BG, (0, 0))
+        WIN.blit(BG, (0,0))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            sound_quieter_button.get_event(event)
+            sound_louder_button.get_event(event)
 
-            start_button.get_event(event)
-            quit_button.get_event(event)
+        
 
+        draw_options_menu(WIN, sound_level, sound_quieter_button, sound_louder_button)
+            
+        pygame.display.update()
 
-
+    pygame.quit()
 
 
 def main(): 
@@ -531,7 +601,8 @@ def main():
     score = Score(rect=(timer_x, card_fdown_y[0], 200, 100))
     start_button = Button(rect=(start_button_x, card_fdown_y[0], 200, 25), command = lambda timer=timer, score=score, deck_of_cards=deck_of_cards, open_card = open_card:start_button_press(timer, score, deck_of_cards, open_card))
     skip_button = Button(rect=(start_button_x, card_fdown_y[0] + 50, 200, 25), command = lambda deck_of_cards=deck_of_cards, open_card=open_card:skip_button_press(deck_of_cards, open_card), text="Skip Card")
-    
+    back_button = Button(rect=(start_button_x, card_fdown_y[0] + 500, 200, 25), text="Back to Main Menu", command = main_menu)
+
     run = True
 
     while run:
@@ -584,9 +655,10 @@ def main():
 
             start_button.get_event(event)
             skip_button.get_event(event)
+            back_button.get_event(event)
 
         
-        draw_game(WIN, deck_of_cards, open_card, start_button, timer, skip_button)
+        draw_game(WIN, deck_of_cards, open_card, start_button, timer, skip_button, back_button)
         score.draw(WIN)
         pygame.display.update()
 
