@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 import json
 
 pygame.init()
@@ -384,6 +385,55 @@ class Sound:
         window.blit(self.__sound_text, self.__sound_rect)
         window.blit(self.__title, self.__title_rect)
 
+class AnimatedSprite(pygame.sprite.Sprite):
+    def __init__(self, position, images):
+        super().__init__()
+        self.size = (64, 64)
+
+        self.position = position
+        self.rect = pygame.Rect(position, self.size)
+        self.images = images
+        self.index = 0
+        self.image = self.images[self.index]
+        self.dragging = False
+
+        self.animation_frames = 6
+        self.current_frame = 0
+
+    def update_frame_dependent(self):
+        self.current_frame += 1
+
+        if self.current_frame >= self.animation_frames:
+            self.current_frame = 0
+            self.index = (self.index + 1) % len(self.images)
+            self.image = self.images[self.index]
+
+        if self.rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            mouse_pos = pygame.mouse.get_pos()
+            self.rect.center = mouse_pos
+
+
+    def update(self):
+        self.update_frame_dependent()
+
+    def get_rect(self):
+        return self.rect
+
+    def set_dragging(self, value):
+        self.dragging = value
+
+  
+
+#Loading Images
+def load_images(path):
+    images = []
+    for file_name in os.listdir(path):
+        image = pygame.image.load(path + os.sep + file_name).convert()
+        image = pygame.transform.scale(image, (64, 64))
+        images.append(image)
+
+    return images
+
 #Generating Cards
 
 def import_from_textfile(filename):
@@ -457,6 +507,9 @@ def draw_options_menu(window, sound_level, sound_quieter, sound_louder, back_but
     sound_quieter.draw(WIN)
     sound_louder.draw(WIN)
     back_button.draw(WIN)
+
+def draw_board(window, back_button):
+    back_button.draw(window)
 
 def draw_hand(window, hand_list):
     #drawing open hand cards - can't put in object as need to edit location per draw
@@ -589,7 +642,14 @@ def options_menu(sound_level=0.5):
     pygame.quit()
 
 def board_menu():
+
+    images = load_images(path="Assets/DinoBlue")
+    player = AnimatedSprite(position=(100, 100), images=images)
+    all_sprites = pygame.sprite.Group(player)
     run = True
+
+    back_button = Button(rect=(50, 50, 200, 40), text="Back to Main Menu", command = main_menu)
+
 
     while run:        
         WIN.blit(BG, (0,0))
@@ -598,10 +658,32 @@ def board_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                main()
-
             
+            
+            #elif event.type == pygame.MOUSEBUTTONDOWN:
+                #if event.button == 1:
+                    #if player.get_rect().collidepoint(event.pos):
+                        #player.set_dragging(True)
+                        #mouse.x, mouse_y = event.pos
+                        #offset_x = rectangle.x - mouse.x
+                        #offset_y = rectangle.y - mouse.y
+
+            #elif event.type == pygame.MOUSEBUTTONUP:
+                #pass
+
+            #elif event.type == pygame.MOUSEMOTION:
+                #pass
+            
+            
+            back_button.get_event(event)
+
+
+        all_sprites.update()
+
+        all_sprites.draw(WIN)
+
+        draw_board(WIN, back_button)
+
         pygame.display.update()
         
     pygame.quit()
