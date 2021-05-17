@@ -28,6 +28,7 @@ SPADES = pygame.image.load("Assets/CardImages/spades.png")
 SPADES = pygame.transform.scale(SPADES, (30, 30))
 LOGO = pygame.image.load("Assets/logo.png")
 LOGO = pygame.transform.scale(LOGO, (480, 171))
+BOARD = pygame.image.load("Assets/board.png")
 
 
 class Card:
@@ -329,13 +330,14 @@ class Score:
 
 class Sound:
     def __init__(self, rect, **kwargs):
+        self.process_kwargs(kwargs)
         self.__rect = pygame.Rect(rect)
         self.__image = pygame.Surface(self.__rect.size).convert()
         self.__sound = 0.5
-        self.__sound_text = self.font.render(str(self.__sound), True, (255, 255, 255))
+        self.__sound_text = self.font.render(str(int(self.__sound * 100)) + "%", True, (255, 255, 255))
         self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
         self.__title = self.font.render(self.text, True, (255, 255, 255))
-        self.__title_rect = self.__score_text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
+        self.__title_rect = self.__sound_text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
 
     def process_kwargs(self, kwargs):
         settings = {
@@ -343,7 +345,8 @@ class Sound:
             "text"                :"Sound",
             "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 36),
             "hover_color"         :(200,0,0),
-            "font_color"          :pygame.Color("white")       
+            "font_color"          :pygame.Color("white"),
+            "sound"               :0.5
             }
 
         #can pass dictionary with many new settings into kwargs to change it
@@ -359,14 +362,27 @@ class Sound:
     def increase_sound(self):
         if self.__sound < 1:
             self.__sound += 0.1
-            self.__sound_text = self.font.render(str(self.__sound), True, (0,128,0))
+            self.__sound = round(self.__sound, 1)
+
+            self.__sound_text = self.font.render(str(int(self.__sound * 100)) + "%", True, (255,255,255))
             self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
+            print(self.__sound)
 
     def decrease_sound(self):
         if self.__sound > 0:
             self.__sound -= 0.1
-            self.__sound_text = self.font.render(str(self.__sound), True, (0,128,0))
+            self.__sound = round(self.__sound, 1)
+            self.__sound_text = self.font.render(str(int(self.__sound * 100)) + "%", True, (255,255,255))
             self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
+
+    def get_sound_level(self):
+        return self.__sound
+
+    def draw(self, window):
+        self.__image.fill(self.color)
+        window.blit(self.__image,  self.__rect)
+        window.blit(self.__sound_text, self.__sound_rect)
+        window.blit(self.__title, self.__title_rect)
 
 #Generating Cards
 
@@ -436,10 +452,11 @@ def draw_main_menu(window, start_button, options_button, quit_button):
     options_button.draw(window)
     quit_button.draw(window)
 
-def draw_options_menu(window, sound_level, sound_quieter, sound_louder):
+def draw_options_menu(window, sound_level, sound_quieter, sound_louder, back_button):
     sound_level.draw(WIN)
     sound_quieter.draw(WIN)
     sound_louder.draw(WIN)
+    back_button.draw(WIN)
 
 def draw_hand(window, hand_list):
     #drawing open hand cards - can't put in object as need to edit location per draw
@@ -450,7 +467,7 @@ def draw_hand(window, hand_list):
             y_pos = hand_list[i].get_y_coords_fup()[0]
             hand_list[i].draw_open_card(window, x_pos + (i * 25), y_pos + (i * -25))
 
-def draw_game(window, deck_of_cards, open_hand, start_button, timer, skip_button, main_menu):
+def draw_game(window, deck_of_cards, open_hand, start_button, timer, skip_button, main_menu, board_button):
     WIN.blit(BG, (0,0))
     deck_of_cards[0].draw(WIN)
     draw_hand(WIN, open_hand)
@@ -458,6 +475,7 @@ def draw_game(window, deck_of_cards, open_hand, start_button, timer, skip_button
     timer.draw(WIN)
     skip_button.draw(WIN)
     main_menu.draw(WIN)
+    board_button.draw(WIN)
 
 #Button Functions
 
@@ -486,7 +504,7 @@ def options():
     options_menu()
 
 
-def main_menu():
+def main_menu(sound_level = 0.5):
     pygame.mixer.stop()
     run = True
 
@@ -505,7 +523,7 @@ def main_menu():
     logo_x = (WIDTH - logo_size[0]) / 2
 
     ambient_music = pygame.mixer.Sound("Assets/Sounds/seashanty2.mp3")
-    ambient_music.set_volume(0.1)
+    ambient_music.set_volume(sound_level)
     pygame.mixer.Sound.play(ambient_music, loops=-1)
     
     while run:
@@ -530,13 +548,13 @@ def main_menu():
         
     pygame.quit()
 
-def options_menu():
+def options_menu(sound_level=0.5):
 
     def increase_vol(sound_level):
-        sound_level.increase_score()
+        sound_level.increase_sound()
 
     def decrease_vol(sound_level):
-        sound_level.decrease_score()
+        sound_level.decrease_sound()
 
     run = True
 
@@ -546,11 +564,12 @@ def options_menu():
     button_x = (WIDTH - button_width) / 2
     button_y = (HEIGHT - button_height) / 3
 
-    sound_level = Score(rect=(button_x, button_y, 200, button_height), text="Sound")
+    sound_level = Sound(rect=(button_x, button_y, 200, button_height), text="Sound")
     sound_quieter_button = Button(rect=(button_x - 90 , button_y, button_height, button_height), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48), text="-", command=lambda sound_level=sound_level:decrease_vol(sound_level))
     sound_louder_button = Button(rect=(button_x + 220, button_y, button_height, button_height), font=pygame.font.Font("Assets/Font/upheavtt.ttf", 48),text="+", command=lambda sound_level=sound_level:increase_vol(sound_level))
 
-    sound_level.set_first_card(False)
+    back_button = Button(rect=(button_x, button_y + 300, 200, 25), text="Back to Main Menu", command = lambda sound_level=sound_level:main_menu(sound_level.get_sound_level()))
+
 
     while run:
         WIN.blit(BG, (0,0))
@@ -560,13 +579,31 @@ def options_menu():
                 run = False
             sound_quieter_button.get_event(event)
             sound_louder_button.get_event(event)
+            back_button.get_event(event)
 
-        
 
-        draw_options_menu(WIN, sound_level, sound_quieter_button, sound_louder_button)
+        draw_options_menu(WIN, sound_level, sound_quieter_button, sound_louder_button, back_button)
             
         pygame.display.update()
 
+    pygame.quit()
+
+def board_menu():
+    run = True
+
+    while run:        
+        WIN.blit(BG, (0,0))
+        WIN.blit(BOARD, (0,0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                main()
+
+            
+        pygame.display.update()
+        
     pygame.quit()
 
 
@@ -599,9 +636,11 @@ def main():
 
     timer = Timer(rect=(timer_x, 176.66, 200, 100), seconds=30, beep = beep)
     score = Score(rect=(timer_x, card_fdown_y[0], 200, 100))
-    start_button = Button(rect=(start_button_x, card_fdown_y[0], 200, 25), command = lambda timer=timer, score=score, deck_of_cards=deck_of_cards, open_card = open_card:start_button_press(timer, score, deck_of_cards, open_card))
-    skip_button = Button(rect=(start_button_x, card_fdown_y[0] + 50, 200, 25), command = lambda deck_of_cards=deck_of_cards, open_card=open_card:skip_button_press(deck_of_cards, open_card), text="Skip Card")
-    back_button = Button(rect=(start_button_x, card_fdown_y[0] + 500, 200, 25), text="Back to Main Menu", command = main_menu)
+    start_button = Button(rect=(start_button_x, card_fdown_y[0], 200, 40), command = lambda timer=timer, score=score, deck_of_cards=deck_of_cards, open_card = open_card:start_button_press(timer, score, deck_of_cards, open_card))
+    skip_button = Button(rect=(start_button_x, card_fdown_y[0] + 60, 200, 40), text="Skip Card", command = lambda deck_of_cards=deck_of_cards, open_card=open_card:skip_button_press(deck_of_cards, open_card))
+    board_button = Button(rect=(start_button_x, card_fdown_y[0] + 120, 200, 40), text="View Board", command = board_menu)
+    back_button = Button(rect=(start_button_x, card_fdown_y[0] + 500, 200, 40), text="Back to Main Menu", command = main_menu)
+    
 
     run = True
 
@@ -656,9 +695,10 @@ def main():
             start_button.get_event(event)
             skip_button.get_event(event)
             back_button.get_event(event)
+            board_button.get_event(event)
 
         
-        draw_game(WIN, deck_of_cards, open_card, start_button, timer, skip_button, back_button)
+        draw_game(WIN, deck_of_cards, open_card, start_button, timer, skip_button, back_button, board_button)
         score.draw(WIN)
         pygame.display.update()
 
