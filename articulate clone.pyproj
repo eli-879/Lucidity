@@ -29,6 +29,9 @@
     <Compile Include="get_data_from_csv.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="move_test.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="articulate env\">
@@ -59,6 +62,7 @@
     <Content Include="Assets\Sounds\beep.wav" />
     <Content Include="Assets\Sounds\jazz.mp3" />
     <Content Include="Assets\Sounds\seashanty2.mp3" />
+    <Content Include="PlayerLocations.txt" />
     <Content Include="TextFiles\animals.txt" />
     <Content Include="TextFiles\data.txt" />
     <Content Include="TextFiles\lolchamps.txt" />

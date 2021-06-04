@@ -31,6 +31,15 @@ LOGO = pygame.image.load("Assets/logo.png")
 LOGO = pygame.transform.scale(LOGO, (480, 171))
 BOARD = pygame.image.load("Assets/board.png")
 
+PLAYER_LOCS_FILE = "PlayerLocations.txt"
+players = 2
+
+with open(PLAYER_LOCS_FILE, "w") as file:
+    for i in range(players):
+        file.write("100 " + str(100 + i * 50) + "\n")
+
+
+
 
 class Card:
     
@@ -408,10 +417,6 @@ class AnimatedSprite(pygame.sprite.Sprite):
             self.index = (self.index + 1) % len(self.images)
             self.image = self.images[self.index]
 
-        if self.rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            mouse_pos = pygame.mouse.get_pos()
-            self.rect.center = mouse_pos
-
 
     def update(self):
         self.update_frame_dependent()
@@ -422,7 +427,17 @@ class AnimatedSprite(pygame.sprite.Sprite):
     def set_dragging(self, value):
         self.dragging = value
 
+    def get_dragging(self):
+        return self.dragging
+
+    def get_position(self):
+        return self.position
+
+    def set_position(self, position):
+        self.position = position
   
+
+
 
 #Loading Images
 def load_images(path):
@@ -641,15 +656,57 @@ def options_menu(sound_level=0.5):
 
     pygame.quit()
 
-def board_menu():
+def board_menu(player_locs_file):
+    def write_loc_to_file(player_locs_file, num_players):
+        with open(player_locs_file, "w") as file:
+            for i in range(num_players):
+                player_loc = player_list[i].get_rect()
+                player_loc_str = str(player_loc[0]) + " " + str(player_loc[1])
+                file.write(player_loc_str + "\n")
 
-    images = load_images(path="Assets/DinoBlue")
-    player = AnimatedSprite(position=(100, 100), images=images)
-    all_sprites = pygame.sprite.Group(player)
+    def back_button_funcs(player_loc_file, num_players):
+        write_loc_to_file(player_locs_file, num_players)
+        main()
+
+
+    player_locs = []
+    with open(player_locs_file, "r") as file:
+        file_lines = file.readlines()
+        for line in file_lines:
+            data = line.split()
+            player_locs.append(data)
+
+    print(player_locs, "SSS")
+
+    player_list = []
+    images_list = []
+    images_blue = load_images(path="Assets/DinoBlue")
+    images_green = load_images(path="Assets/DinoGreen")
+
+    images_list.append(images_blue)
+    images_list.append(images_green)
+    
+    num_players = 2
+
+    all_sprites = pygame.sprite.Group()
+
+    for i in range(num_players):
+        data = player_locs[i]
+        location = (int(data[0]), int(data[1]))
+        images = images_list[i]
+        new_player = AnimatedSprite(position=location, images=images)
+        player_list.append(new_player)
+        all_sprites.add(new_player)
+
+    
+    #player = AnimatedSprite(position=(100, 100), images=images_blue)
+    #player_list.append(player)
+    #all_sprites = pygame.sprite.Group(player_list)
     run = True
 
-    back_button = Button(rect=(50, 50, 200, 40), text="Back to Main Menu", command = main_menu)
+    back_button = Button(rect=(50, 50, 200, 40), text="Back to Game", command = lambda player_locs_file=player_locs_file, num_players = num_players : back_button_funcs(player_locs_file, num_players))
 
+    draw_list = []
 
     while run:        
         WIN.blit(BG, (0,0))
@@ -659,21 +716,38 @@ def board_menu():
             if event.type == pygame.QUIT:
                 run = False
             
-            
-            #elif event.type == pygame.MOUSEBUTTONDOWN:
-                #if event.button == 1:
-                    #if player.get_rect().collidepoint(event.pos):
-                        #player.set_dragging(True)
-                        #mouse.x, mouse_y = event.pos
-                        #offset_x = rectangle.x - mouse.x
-                        #offset_y = rectangle.y - mouse.y
+     
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    for player in player_list[::-1]:
+                        if player.get_rect().collidepoint(event.pos):
+                            draw_list.append(player)
+                            draw_list[0].set_dragging(True)
+                            mouse_x, mouse_y = event.pos
+                            offset_x = draw_list[0].get_rect().x - mouse_x
+                            offset_y = draw_list[0].get_rect().y - mouse_y
+                            
+                            print(draw_list)
 
-            #elif event.type == pygame.MOUSEBUTTONUP:
-                #pass
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    if len(draw_list) > 0:
+                        draw_list[0].set_position((draw_list[0].get_rect().x, draw_list[0].get_rect().y))
 
-            #elif event.type == pygame.MOUSEMOTION:
-                #pass
-            
+                    for player in player_list:
+                        player.set_dragging(False)
+                        print(player.get_position())
+
+                    
+                   
+                    draw_list.clear()
+
+            elif event.type == pygame.MOUSEMOTION:
+                for player in player_list:
+                    if player.get_dragging() == True:
+                        mouse_x, mouse_y = event.pos
+                        player.get_rect().x = mouse_x + offset_x
+                        player.get_rect().y = mouse_y + offset_y
             
             back_button.get_event(event)
 
@@ -720,7 +794,7 @@ def main():
     score = Score(rect=(timer_x, card_fdown_y[0], 200, 100))
     start_button = Button(rect=(start_button_x, card_fdown_y[0], 200, 40), command = lambda timer=timer, score=score, deck_of_cards=deck_of_cards, open_card = open_card:start_button_press(timer, score, deck_of_cards, open_card))
     skip_button = Button(rect=(start_button_x, card_fdown_y[0] + 60, 200, 40), text="Skip Card", command = lambda deck_of_cards=deck_of_cards, open_card=open_card:skip_button_press(deck_of_cards, open_card))
-    board_button = Button(rect=(start_button_x, card_fdown_y[0] + 120, 200, 40), text="View Board", command = board_menu)
+    board_button = Button(rect=(start_button_x, card_fdown_y[0] + 120, 200, 40), text="View Board", command = lambda player_locs_file = PLAYER_LOCS_FILE : board_menu(player_locs_file))
     back_button = Button(rect=(start_button_x, card_fdown_y[0] + 500, 200, 40), text="Back to Main Menu", command = main_menu)
     
 
