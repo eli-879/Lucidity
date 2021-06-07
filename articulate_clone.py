@@ -3,6 +3,12 @@ import random
 import os
 import json
 
+from button import Button
+from timer import Timer
+from score import Score
+from sound import Sound
+from animated_sprite import AnimatedSprite
+
 pygame.init()
 pygame.mixer.init()
 
@@ -31,14 +37,12 @@ LOGO = pygame.image.load("Assets/logo.png")
 LOGO = pygame.transform.scale(LOGO, (480, 171))
 BOARD = pygame.image.load("Assets/board.png")
 
-PLAYER_LOCS_FILE = "PlayerLocations.txt"
-players = 2
+PLAYER_LOCS_FILE = "Assets/PlayerLocations.txt"
+players = 3
 
 with open(PLAYER_LOCS_FILE, "w") as file:
     for i in range(players):
         file.write("100 " + str(100 + i * 50) + "\n")
-
-
 
 
 class Card:
@@ -145,298 +149,6 @@ class Card:
     def set_down_true(self):
         self.__up = False
         self.__down = True
-
-class Button:
-
-    def __init__(self, rect, command=None, **kwargs):
-        self.process_kwargs(kwargs)
-        self.__rect = pygame.Rect(rect)
-        self.__image = pygame.Surface(self.__rect.size).convert()
-        self.__command = command
-        self.text = self.font.render(self.text, True, self.font_color)
-        self.text_rect = self.text.get_rect(center = self.__rect.center)
-        #self.__text = text
-
-    def process_kwargs(self, kwargs):
-        settings = {
-            "color"               :pygame.Color("black"),
-            "text"                :"Start Round",
-            "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 20),
-            "hover_color"         :(200,0,0),
-            "font_color"          :pygame.Color("white")       
-            }
-
-        #can pass dictionary with many new settings into kwargs to change it
-
-        for kwarg in kwargs:
-            if kwarg in settings:
-                settings[kwarg] = kwargs[kwarg]
-            else:
-                raise AttributeError("{} has no keyword: {}".format(self.__class__.__name__, kwarg))
-
-        self.__dict__.update(settings)
-
-    def get_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self.on_click(event)
-
-    def on_click(self, event):
-        if self.is_hovering():
-            self.__command()
-
-    def is_hovering(self):
-        if self.__rect.collidepoint(pygame.mouse.get_pos()):
-            return True
-
-    def draw(self, window):
-        if self.is_hovering():
-            self.__image.fill(self.hover_color)
-        else:
-            self.__image.fill(self.color)
-            
-        window.blit(self.__image, self.__rect)
-        window.blit(self.text, self.text_rect)
-
-class Timer:
-
-    def __init__(self, rect, seconds, beep, **kwargs):
-        self.process_kwargs( kwargs)
-        self.__rect = pygame.Rect(rect)        
-        self.__image = pygame.Surface(self.__rect.size).convert()
-        self.__counter = seconds
-        self.__counter_fixed = seconds
-        self.__start = False
-
-        self.__text = self.font.render(str(self.__counter), True, (255, 255, 255))
-        self.__text_rect = self.__text.get_rect(center = self.__rect.center)
-        self.__title = self.font.render("Timer:", True, (255, 255, 255))
-        self.__title_rect = self.__text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
-
-        self.__timer_event = pygame.USEREVENT + 1
-        self.__timer = pygame.time.set_timer(self.__timer_event, 1000)
-        self.__beep = beep
-
-    def process_kwargs(self, kwargs):
-        settings = {
-            "color"               :pygame.Color("black"),
-            "text"                :"Start Round",
-            "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 36),
-            "hover_color"         :(200,0,0),
-            "font_color"          :pygame.Color("white")       
-            }
-
-        #can pass dictionary with many new settings into kwargs to change it
-
-        for kwarg in kwargs:
-            if kwarg in settings:
-                settings[kwarg] = kwargs[kwarg]
-            else:
-                raise AttributeError("{} has no keyword: {}".format(self.__class__.__name__, kwarg))
-
-        self.__dict__.update(settings)
-
-    def get_timer_event(self):
-        return self.__timer_event
-
-    def reduce_counter(self, open_card, deck_of_cards, score):
-        if self.__start == True:
-
-            self.__counter -= 1
-            self.__text = self.font.render(str(self.__counter), True, (255,255,255))
-            self.__text_rect = self.__text.get_rect(center = self.__rect.center)
-
-            if self.__counter == 10:
-                pygame.mixer.Sound.play(self.__beep)
-
-            if self.__counter == 0:
-                pygame.mixer.Sound.play(self.__beep, loops=2)
-                score.reset_score()
-            
-
-            if self.__counter <= 0:
-                self.__timer = pygame.time.set_timer(self.__timer_event, 0)
-                if len(open_card) >= 1:
-                    open_card[0].set_down_true()              
-                    open_card.pop(0)
-                
-                else:
-                    pass
-
-    def start_timer(self):
-        self.__start = True
-
-
-    def reset(self):
-        self.__counter = self.__counter_fixed + 1
-        self.__timer = pygame.time.set_timer(self.__timer_event, 1000)
-
-    def draw(self, window):
-        #self.__image.fill(self.color)
-        window.blit(self.__image, self.__rect)
-        window.blit(self.__text, self.__text_rect)
-        window.blit(self.__title, self.__title_rect)
-
-class Score:
-
-    def __init__(self, rect, **kwargs):
-        self.process_kwargs(kwargs)
-        self.__rect = pygame.Rect(rect)
-        self.__image = pygame.Surface(self.__rect.size).convert()
-        self.__score = 0
-        self.__score_text = self.font.render(str(self.__score), True, (255, 255, 255))
-        self.__score_rect = self.__score_text.get_rect(center = self.__rect.center)
-        self.__title = self.font.render(self.text, True, (255, 255, 255))
-        self.__title_rect = self.__score_text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
-
-        self.__first_card = True
-
-    def process_kwargs(self, kwargs):
-        settings = {
-            "color"               :pygame.Color("red"),
-            "text"                :"Score:",
-            "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 36),
-            "hover_color"         :(200,0,0),
-            "font_color"          :pygame.Color("white")       
-            }
-
-        #can pass dictionary with many new settings into kwargs to change it
-
-        for kwarg in kwargs:
-            if kwarg in settings:
-                settings[kwarg] = kwargs[kwarg]
-            else:
-                raise AttributeError("{} has no keyword: {}".format(self.__class__.__name__, kwarg))
-
-        self.__dict__.update(settings)
-
-    def is_first_card(self):
-        return self.__first_card
-
-    def set_first_card(self, value):
-        self.__first_card = value
-      
-    def increase_score(self):
-
-        if self.__first_card == True:
-            self.__first_card = False
-            pass
-        else:
-            self.__score += 1
-            self.__score_text = self.font.render(str(self.__score), True, (0,128,0))
-            self.__score_rect = self.__score_text.get_rect(center = self.__rect.center)
-           
-
-    def reset_score(self):
-        self.__first_card = True
-        self.__score = 0
-        self.__score_text = self.font.render(str(self.__score), True, (0,128,0))
-        self.__score_rect = self.__score_text.get_rect(center = self.__rect.center)
-
-    def draw(self, window):
-        self.__image.fill(self.color)
-        window.blit(self.__image,  self.__rect)
-        window.blit(self.__score_text, self.__score_rect)
-        window.blit(self.__title, self.__title_rect)
-
-class Sound:
-    def __init__(self, rect, **kwargs):
-        self.process_kwargs(kwargs)
-        self.__rect = pygame.Rect(rect)
-        self.__image = pygame.Surface(self.__rect.size).convert()
-        self.__sound = 0.5
-        self.__sound_text = self.font.render(str(int(self.__sound * 100)) + "%", True, (255, 255, 255))
-        self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
-        self.__title = self.font.render(self.text, True, (255, 255, 255))
-        self.__title_rect = self.__sound_text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
-
-    def process_kwargs(self, kwargs):
-        settings = {
-            "color"               :pygame.Color("red"),
-            "text"                :"Sound",
-            "font"                :pygame.font.Font("Assets/Font/upheavtt.ttf", 36),
-            "hover_color"         :(200,0,0),
-            "font_color"          :pygame.Color("white"),
-            "sound"               :0.5
-            }
-
-        #can pass dictionary with many new settings into kwargs to change it
-
-        for kwarg in kwargs:
-            if kwarg in settings:
-                settings[kwarg] = kwargs[kwarg]
-            else:
-                raise AttributeError("{} has no keyword: {}".format(self.__class__.__name__, kwarg))
-
-        self.__dict__.update(settings)
-
-    def increase_sound(self):
-        if self.__sound < 1:
-            self.__sound += 0.1
-            self.__sound = round(self.__sound, 1)
-
-            self.__sound_text = self.font.render(str(int(self.__sound * 100)) + "%", True, (255,255,255))
-            self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
-            print(self.__sound)
-
-    def decrease_sound(self):
-        if self.__sound > 0:
-            self.__sound -= 0.1
-            self.__sound = round(self.__sound, 1)
-            self.__sound_text = self.font.render(str(int(self.__sound * 100)) + "%", True, (255,255,255))
-            self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
-
-    def get_sound_level(self):
-        return self.__sound
-
-    def draw(self, window):
-        self.__image.fill(self.color)
-        window.blit(self.__image,  self.__rect)
-        window.blit(self.__sound_text, self.__sound_rect)
-        window.blit(self.__title, self.__title_rect)
-
-class AnimatedSprite(pygame.sprite.Sprite):
-    def __init__(self, position, images):
-        super().__init__()
-        self.size = (64, 64)
-
-        self.position = position
-        self.rect = pygame.Rect(position, self.size)
-        self.images = images
-        self.index = 0
-        self.image = self.images[self.index]
-        self.dragging = False
-
-        self.animation_frames = 6
-        self.current_frame = 0
-
-    def update_frame_dependent(self):
-        self.current_frame += 1
-
-        if self.current_frame >= self.animation_frames:
-            self.current_frame = 0
-            self.index = (self.index + 1) % len(self.images)
-            self.image = self.images[self.index]
-
-
-    def update(self):
-        self.update_frame_dependent()
-
-    def get_rect(self):
-        return self.rect
-
-    def set_dragging(self, value):
-        self.dragging = value
-
-    def get_dragging(self):
-        return self.dragging
-
-    def get_position(self):
-        return self.position
-
-    def set_position(self, position):
-        self.position = position
-  
-
 
 
 #Loading Images
@@ -572,7 +284,7 @@ def options():
     options_menu()
 
 
-def main_menu(sound_level = 0.5):
+def main_menu(sound_level = 0.3):
     pygame.mixer.stop()
     run = True
 
@@ -616,7 +328,7 @@ def main_menu(sound_level = 0.5):
         
     pygame.quit()
 
-def options_menu(sound_level=0.5):
+def options_menu(sound_level=0.3):
 
     def increase_vol(sound_level):
         sound_level.increase_sound()
@@ -680,13 +392,15 @@ def board_menu(player_locs_file):
 
     player_list = []
     images_list = []
+    images_red = load_images(path="Assets/DinoRed")
     images_blue = load_images(path="Assets/DinoBlue")
     images_green = load_images(path="Assets/DinoGreen")
-
+    
+    images_list.append(images_red)
     images_list.append(images_blue)
     images_list.append(images_green)
     
-    num_players = 2
+    num_players = 3
 
     all_sprites = pygame.sprite.Group()
 

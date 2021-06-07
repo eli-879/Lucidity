@@ -22,14 +22,29 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="add_to_data_file.py">
+    <Compile Include="Extras\add_to_data_file.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="animated_sprite.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="articulate_clone.py" />
-    <Compile Include="get_data_from_csv.py">
+    <Compile Include="button.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="move_test.py">
+    <Compile Include="Extras\get_data_from_csv.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="card.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="score.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="sound.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="timer.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -49,6 +64,7 @@
     <Folder Include="Assets\CardImages\" />
     <Folder Include="Assets\Font\" />
     <Folder Include="Assets\Sounds\" />
+    <Folder Include="Extras\" />
     <Folder Include="TextFiles\" />
   </ItemGroup>
   <ItemGroup>
@@ -62,7 +78,7 @@
     <Content Include="Assets\Sounds\beep.wav" />
     <Content Include="Assets\Sounds\jazz.mp3" />
     <Content Include="Assets\Sounds\seashanty2.mp3" />
-    <Content Include="PlayerLocations.txt" />
+    <Content Include="Assets\PlayerLocations.txt" />
     <Content Include="TextFiles\animals.txt" />
     <Content Include="TextFiles\data.txt" />
     <Content Include="TextFiles\lolchamps.txt" />
