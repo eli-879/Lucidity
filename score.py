@@ -3,6 +3,7 @@ import pygame
 class Score:
 
     def __init__(self, rect, **kwargs):
+        #updating attributes depending on any additional things entered
         self.process_kwargs(kwargs)
         self.__rect = pygame.Rect(rect)
         self.__image = pygame.Surface(self.__rect.size).convert()
@@ -14,6 +15,7 @@ class Score:
 
         self.__first_card = True
 
+    #processing kwargs so that they are added as attributes if stated in initialization
     def process_kwargs(self, kwargs):
         settings = {
             "color"               :pygame.Color("red"),
@@ -33,14 +35,15 @@ class Score:
 
         self.__dict__.update(settings)
 
+    #checking and setting first card
     def is_first_card(self):
         return self.__first_card
 
     def set_first_card(self, value):
         self.__first_card = value
       
+    #increase score 
     def increase_score(self):
-
         if self.__first_card == True:
             self.__first_card = False
             pass
@@ -49,7 +52,7 @@ class Score:
             self.__score_text = self.font.render(str(self.__score), True, (0,128,0))
             self.__score_rect = self.__score_text.get_rect(center = self.__rect.center)
            
-
+    #reset score
     def reset_score(self):
         self.__first_card = True
         self.__score = 0

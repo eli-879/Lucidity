@@ -3,15 +3,16 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>9e5175a7-20b8-400f-969c-9200428b7335</ProjectGuid>
-    <ProjectHome>.</ProjectHome>
-    <StartupFile>articulate_clone.py</StartupFile>
+    <ProjectHome>
+    </ProjectHome>
+    <StartupFile>lucidity.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>articulate clone</Name>
+    <Name>lucidity</Name>
     <RootNamespace>articulate clone</RootNamespace>
-    <InterpreterId>MSBuild|articulate env|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>MSBuild|lucidity env|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -28,14 +29,11 @@
     <Compile Include="animated_sprite.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="articulate_clone.py" />
+    <Compile Include="lucidity.py" />
     <Compile Include="button.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Extras\get_data_from_csv.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="card.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="score.py">
@@ -49,10 +47,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Interpreter Include="articulate env\">
-      <Id>articulate env</Id>
+    <Interpreter Include="lucidity env\">
+      <Id>lucidity env</Id>
       <Version>3.8</Version>
-      <Description>articulate env (Python 3.8 (64-bit))</Description>
+      <Description>lucidity env (Python 3.8 (64-bit))</Description>
       <InterpreterPath>Scripts\python.exe</InterpreterPath>
       <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
@@ -86,6 +84,9 @@
     <Content Include="TextFiles\objects.txt" />
     <Content Include="TextFiles\pokemon.txt" />
     <Content Include="TextFiles\random.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="MSBuild|articulate env|D:\Documents\Programming\Python\Articulate\articulate clone\lucidity.pyproj" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

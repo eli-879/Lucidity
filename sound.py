@@ -1,7 +1,8 @@
-import sound
+import pygame
 
 class Sound:
     def __init__(self, rect, **kwargs):
+        #updating attributes depending on any additional things entered
         self.process_kwargs(kwargs)
         self.__rect = pygame.Rect(rect)
         self.__image = pygame.Surface(self.__rect.size).convert()
@@ -11,6 +12,7 @@ class Sound:
         self.__title = self.font.render(self.text, True, (255, 255, 255))
         self.__title_rect = self.__sound_text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
 
+    #can pass dictionary with many new settings into kwargs to change it
     def process_kwargs(self, kwargs):
         settings = {
             "color"               :pygame.Color("red"),
@@ -31,6 +33,7 @@ class Sound:
 
         self.__dict__.update(settings)
 
+    #increase and decrease sound
     def increase_sound(self):
         if self.__sound < 1:
             self.__sound += 0.1

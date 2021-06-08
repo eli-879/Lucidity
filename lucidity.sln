@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "articulate clone", "articulate clone.pyproj", "{9E5175A7-20B8-400F-969C-9200428B7335}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "lucidity", "lucidity.pyproj", "{9E5175A7-20B8-400F-969C-9200428B7335}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

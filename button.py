@@ -3,14 +3,15 @@ import pygame
 class Button:
 
     def __init__(self, rect, command=None, **kwargs):
+        #updating attributes depending on any additional things entered
         self.process_kwargs(kwargs)
         self.__rect = pygame.Rect(rect)
         self.__image = pygame.Surface(self.__rect.size).convert()
         self.__command = command
         self.text = self.font.render(self.text, True, self.font_color)
         self.text_rect = self.text.get_rect(center = self.__rect.center)
-        #self.__text = text
 
+    #processing kwargs so that they are added as attributes if stated in initialization
     def process_kwargs(self, kwargs):
         settings = {
             "color"               :pygame.Color("black"),
@@ -30,6 +31,7 @@ class Button:
 
         self.__dict__.update(settings)
 
+    #getting event
     def get_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self.on_click(event)
