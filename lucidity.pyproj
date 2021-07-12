@@ -73,6 +73,7 @@
     <Content Include="Assets\CardImages\spades.png" />
     <Content Include="Assets\Font\upheavtt.ttf" />
     <Content Include="Assets\play.png" />
+    <Content Include="requirements.txt" />
     <Content Include="Assets\Sounds\beep.wav" />
     <Content Include="Assets\Sounds\jazz.mp3" />
     <Content Include="Assets\Sounds\seashanty2.mp3" />

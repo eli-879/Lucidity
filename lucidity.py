@@ -56,8 +56,7 @@ with open(PLAYER_LOCS_FILE, "w") as file:
 
 class Card:
     
-    def __init__(self, list_of_items, ace_index):
-        
+    def __init__(self, list_of_items, ace_index):    
         self.__up = False
         self.__down = True
         self.__HEIGHT = 300
@@ -71,7 +70,6 @@ class Card:
         self.__card_front = CARD_FRONT
         self.__ace = SPADES
         self.__mask = self.__card_back.get_rect()
-
         self.__people_item = list_of_items[0]
         self.__world_item = list_of_items[1]
         self.__object_item = list_of_items[2]
@@ -80,7 +78,7 @@ class Card:
         self.__random_item = list_of_items[5]
         self.__ace_index = ace_index[0]
         self.__list_of_items = [self.__people_item, self.__world_item, self.__object_item, self.__action_item, self.__nature_item, self.__random_item]
-        
+ 
     def __str__(self):
         string = str(self.__list_of_items) + " Ace Category: " + str(self.__ace_index)
         return string
