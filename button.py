@@ -5,11 +5,11 @@ class Button:
     def __init__(self, rect, command=None, **kwargs):
         #updating attributes depending on any additional things entered
         self.process_kwargs(kwargs)
-        self.__rect = pygame.Rect(rect)
-        self.__image = pygame.Surface(self.__rect.size).convert()
-        self.__command = command
+        self.rect = pygame.Rect(rect)
+        self.image = pygame.Surface(self.rect.size).convert()
+        self.command = command
         self.text = self.font.render(self.text, True, self.font_color)
-        self.text_rect = self.text.get_rect(center = self.__rect.center)
+        self.text_rect = self.text.get_rect(center = self.rect.center)
 
     #processing kwargs so that they are added as attributes if stated in initialization
     def process_kwargs(self, kwargs):
@@ -38,17 +38,17 @@ class Button:
 
     def on_click(self, event):
         if self.is_hovering():
-            self.__command()
+            self.command()
 
     def is_hovering(self):
-        if self.__rect.collidepoint(pygame.mouse.get_pos()):
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
             return True
 
     def draw(self, window):
         if self.is_hovering():
-            self.__image.fill(self.hover_color)
+            self.image.fill(self.hover_color)
         else:
-            self.__image.fill(self.color)
+            self.image.fill(self.color)
             
-        window.blit(self.__image, self.__rect)
+        window.blit(self.image, self.rect)
         window.blit(self.text, self.text_rect)

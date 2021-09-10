@@ -4,13 +4,13 @@ class Sound:
     def __init__(self, rect, **kwargs):
         #updating attributes depending on any additional things entered
         self.process_kwargs(kwargs)
-        self.__rect = pygame.Rect(rect)
-        self.__image = pygame.Surface(self.__rect.size).convert()
-        self.__sound = 0.5
-        self.__sound_text = self.font.render(str(int(self.__sound * 100)) + "%", True, (255, 255, 255))
-        self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
-        self.__title = self.font.render(self.text, True, (255, 255, 255))
-        self.__title_rect = self.__sound_text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
+        self.rect = pygame.Rect(rect)
+        self.image = pygame.Surface(self.rect.size).convert()
+        self.sound = 0.5
+        self.sound_text = self.font.render(str(int(self.sound * 100)) + "%", True, (255, 255, 255))
+        self.sound_rect = self.sound_text.get_rect(center = self.rect.center)
+        self.title = self.font.render(self.text, True, (255, 255, 255))
+        self.title_rect = self.sound_text.get_rect(left = self.rect.left + 10, top = self.rect.top)
 
     #can pass dictionary with many new settings into kwargs to change it
     def process_kwargs(self, kwargs):
@@ -35,26 +35,26 @@ class Sound:
 
     #increase and decrease sound
     def increase_sound(self):
-        if self.__sound < 1:
-            self.__sound += 0.1
-            self.__sound = round(self.__sound, 1)
+        if self.sound < 1:
+            self.sound += 0.1
+            self.sound = round(self.sound, 1)
 
-            self.__sound_text = self.font.render(str(int(self.__sound * 100)) + "%", True, (255,255,255))
-            self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
-            print(self.__sound)
+            self.sound_text = self.font.render(str(int(self.sound * 100)) + "%", True, (255,255,255))
+            self.sound_rect = self.sound_text.get_rect(center = self.rect.center)
+            print(self.sound)
 
     def decrease_sound(self):
-        if self.__sound > 0:
-            self.__sound -= 0.1
-            self.__sound = round(self.__sound, 1)
-            self.__sound_text = self.font.render(str(int(self.__sound * 100)) + "%", True, (255,255,255))
-            self.__sound_rect = self.__sound_text.get_rect(center = self.__rect.center)
+        if self.sound > 0:
+            self.sound -= 0.1
+            self.sound = round(self.sound, 1)
+            self.sound_text = self.font.render(str(int(self.sound * 100)) + "%", True, (255,255,255))
+            self.sound_rect = self.sound_text.get_rect(center = self.rect.center)
 
     def get_sound_level(self):
-        return self.__sound
+        return self.sound
 
     def draw(self, window):
-        self.__image.fill(self.color)
-        window.blit(self.__image,  self.__rect)
-        window.blit(self.__sound_text, self.__sound_rect)
-        window.blit(self.__title, self.__title_rect)
+        self.image.fill(self.color)
+        window.blit(self.image,  self.rect)
+        window.blit(self.sound_text, self.sound_rect)
+        window.blit(self.title, self.title_rect)

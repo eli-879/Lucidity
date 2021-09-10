@@ -57,46 +57,46 @@ with open(PLAYER_LOCS_FILE, "w") as file:
 class Card:
     
     def __init__(self, list_of_items, ace_index):    
-        self.__up = False
-        self.__down = True
-        self.__HEIGHT = 300
-        self.__WIDTH = 400
-        self.__xpos = (WIDTH - self.__WIDTH) / 2
-        self.__xpos_move = 0
-        self.__ypos_fdown = (HEIGHT - (self.__HEIGHT) * 2) / 3
-        self.__ypos_fup =  (2 * ((HEIGHT - (self.__HEIGHT) * 2) / 3)) + self.__HEIGHT
-        self.__ypos_move = 0
-        self.__card_back = CARD_BACK
-        self.__card_front = CARD_FRONT
-        self.__ace = SPADES
-        self.__mask = self.__card_back.get_rect()
-        self.__people_item = list_of_items[0]
-        self.__world_item = list_of_items[1]
-        self.__object_item = list_of_items[2]
-        self.__action_item = list_of_items[3]
-        self.__nature_item = list_of_items[4]
-        self.__random_item = list_of_items[5]
-        self.__ace_index = ace_index[0]
-        self.__list_of_items = [self.__people_item, self.__world_item, self.__object_item, self.__action_item, self.__nature_item, self.__random_item]
+        self.up = False
+        self.down = True
+        self.HEIGHT = 300
+        self.WIDTH = 400
+        self.xpos = (WIDTH - self.WIDTH) / 2
+        self.xpos_move = 0
+        self.ypos_fdown = (HEIGHT - (self.HEIGHT) * 2) / 3
+        self.ypos_fup =  (2 * ((HEIGHT - (self.HEIGHT) * 2) / 3)) + self.HEIGHT
+        self.ypos_move = 0
+        self.card_back = CARD_BACK
+        self.card_front = CARD_FRONT
+        self.ace = SPADES
+        self.mask = self.card_back.get_rect()
+        self.people_item = list_of_items[0]
+        self.world_item = list_of_items[1]
+        self.object_item = list_of_items[2]
+        self.action_item = list_of_items[3]
+        self.nature_item = list_of_items[4]
+        self.random_item = list_of_items[5]
+        self.ace_index = ace_index[0]
+        self.list_of_items = [self.people_item, self.world_item, self.object_item, self.action_item, self.nature_item, self.random_item]
  
     def __str__(self):
-        string = str(self.__list_of_items) + " Ace Category: " + str(self.__ace_index)
+        string = str(self.list_of_items) + " Ace Category: " + str(self.ace_index)
         return string
 
     def draw_fdown(self, window):
         #draws facedown deck to the screen
-        if self.__down == True:
-            window.blit(self.__card_back, (self.__xpos, self.__ypos_fdown))
+        if self.down == True:
+            window.blit(self.card_back, (self.xpos, self.ypos_fdown))
 
     def draw_open_card(self, window, x_pos, y_pos):
         #draws card in hand to screen
-        window.blit(self.__card_front, (x_pos, y_pos))
-        category_0 = card_word_font.render(self.__list_of_items[0], 1, BLACK)
-        category_1 = card_word_font.render(self.__list_of_items[1], 1, BLACK)
-        category_2 = card_word_font.render(self.__list_of_items[2], 1, BLACK)
-        category_3 = card_word_font.render(self.__list_of_items[3], 1, BLACK)
-        category_4 = card_word_font.render(self.__list_of_items[4], 1, BLACK)
-        category_5 = card_word_font.render(self.__list_of_items[5], 1, BLACK)
+        window.blit(self.card_front, (x_pos, y_pos))
+        category_0 = card_word_font.render(self.list_of_items[0], 1, BLACK)
+        category_1 = card_word_font.render(self.list_of_items[1], 1, BLACK)
+        category_2 = card_word_font.render(self.list_of_items[2], 1, BLACK)
+        category_3 = card_word_font.render(self.list_of_items[3], 1, BLACK)
+        category_4 = card_word_font.render(self.list_of_items[4], 1, BLACK)
+        category_5 = card_word_font.render(self.list_of_items[5], 1, BLACK)
 
         list_of_cat = [category_0, category_1, category_2, category_3, category_4, category_5]
 
@@ -107,34 +107,34 @@ class Card:
             center_box = ((36 - list_of_cat[i].get_height()) / 2) + ((i) * 36)
             window.blit(list_of_cat[i], (x_pos + 60, initial_y_pos + center_box + y_gaps))
 
-            if i == self.__ace_index:
-                window.blit(self.__ace, (x_pos + 370 - 17.4, initial_y_pos + center_box + y_gaps - 5))
+            if i == self.ace_index:
+                window.blit(self.ace, (x_pos + 370 - 17.4, initial_y_pos + center_box + y_gaps - 5))
 
     def get_x_coords(self):
-        return (self.__xpos, self.__xpos + self.__WIDTH)
+        return (self.xpos, self.xpos + self.WIDTH)
 
     def get_y_coords_fup(self):
-        return (self.__ypos_fup, self.__ypos_fup + self.__HEIGHT)
+        return (self.ypos_fup, self.ypos_fup + self.HEIGHT)
 
     def get_y_coords_fdown(self):
-        return (self.__ypos_fdown, self.__ypos_fdown + self.__HEIGHT)
+        return (self.ypos_fdown, self.ypos_fdown + self.HEIGHT)
 
     def add_x_coords(self, value):
-        self.__xpos += value
+        self.xpos += value
 
     def add_y_coords_fup(self, value):
-        self.__ypos_fup += value
+        self.ypos_fup += value
 
     def add_y_coords_fdown(self, value):
-        self.__ypos_fdown += value
+        self.ypos_fdown += value
 
     def set_up_true(self):
-        self.__up = True
-        self.__down = False
+        self.up = True
+        self.down = False
 
     def set_down_true(self):
-        self.__up = False
-        self.__down = True
+        self.up = False
+        self.down = True
 
 
 #Loading images for animated sprites

@@ -5,20 +5,20 @@ class Timer:
     def __init__(self, rect, seconds, beep, **kwargs):
         #updating attributes depending on any additional things entered
         self.process_kwargs( kwargs)
-        self.__rect = pygame.Rect(rect)        
-        self.__image = pygame.Surface(self.__rect.size).convert()
-        self.__counter = seconds
-        self.__counter_fixed = seconds
-        self.__start = False
+        self.rect = pygame.Rect(rect)        
+        self.image = pygame.Surface(self.rect.size).convert()
+        self.counter = seconds
+        self.counter_fixed = seconds
+        self.start = False
 
-        self.__text = self.font.render(str(self.__counter), True, (255, 255, 255))
-        self.__text_rect = self.__text.get_rect(center = self.__rect.center)
-        self.__title = self.font.render("Timer:", True, (255, 255, 255))
-        self.__title_rect = self.__text.get_rect(left = self.__rect.left + 10, top = self.__rect.top)
+        self.text = self.font.render(str(self.counter), True, (255, 255, 255))
+        self.text_rect = self.text.get_rect(center = self.rect.center)
+        self.title = self.font.render("Timer:", True, (255, 255, 255))
+        self.title_rect = self.text.get_rect(left = self.rect.left + 10, top = self.rect.top)
 
-        self.__timer_event = pygame.USEREVENT + 1
-        self.__timer = pygame.time.set_timer(self.__timer_event, 1000)
-        self.__beep = beep
+        self.timer_event = pygame.USEREVENT + 1
+        self.timer = pygame.time.set_timer(self.timer_event, 1000)
+        self.beep = beep
 
     #can pass dictionary with many new settings into kwargs to change it
     def process_kwargs(self, kwargs):
@@ -41,25 +41,25 @@ class Timer:
         self.__dict__.update(settings)
 
     def get_timer_event(self):
-        return self.__timer_event
+        return self.timer_event
 
     #reduce timer by 1second every second
     def reduce_counter(self, open_card, deck_of_cards, score):
-        if self.__start == True:
+        if self.start == True:
 
-            self.__counter -= 1
-            self.__text = self.font.render(str(self.__counter), True, (255,255,255))
-            self.__text_rect = self.__text.get_rect(center = self.__rect.center)
+            self.counter -= 1
+            self.text = self.font.render(str(self.counter), True, (255,255,255))
+            self.text_rect = self.text.get_rect(center = self.rect.center)
 
-            if self.__counter == 10:
-                pygame.mixer.Sound.play(self.__beep)
+            if self.counter == 10:
+                pygame.mixer.Sound.play(self.beep)
 
-            if self.__counter == 0:
-                pygame.mixer.Sound.play(self.__beep, loops=2)
+            if self.counter == 0:
+                pygame.mixer.Sound.play(self.beep, loops=2)
                 score.reset_score()
             
-            if self.__counter <= 0:
-                self.__timer = pygame.time.set_timer(self.__timer_event, 0)
+            if self.counter <= 0:
+                self.timer = pygame.time.set_timer(self.timer_event, 0)
                 if len(open_card) >= 1:
                     open_card[0].set_down_true()              
                     open_card.pop(0)        
@@ -67,13 +67,13 @@ class Timer:
                     pass
 
     def start_timer(self):
-        self.__start = True
+        self.start = True
 
     def reset(self):
-        self.__counter = self.__counter_fixed + 1
-        self.__timer = pygame.time.set_timer(self.__timer_event, 1000)
+        self.counter = self.counter_fixed + 1
+        self.timer = pygame.time.set_timer(self.timer_event, 1000)
 
     def draw(self, window):
-        window.blit(self.__image, self.__rect)
-        window.blit(self.__text, self.__text_rect)
-        window.blit(self.__title, self.__title_rect)
+        window.blit(self.image, self.rect)
+        window.blit(self.text, self.text_rect)
+        window.blit(self.title, self.title_rect)
