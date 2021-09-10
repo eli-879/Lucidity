@@ -1,7 +1,5 @@
 import pygame
-import random
 import os
-import json
 
 #importing class from separate files
 from button import Button
@@ -9,7 +7,6 @@ from timer import Timer
 from score import Score
 from sound import Sound
 from animated_sprite import AnimatedSprite
-from card import Card
 from deck import Deck
 
 pygame.init()
