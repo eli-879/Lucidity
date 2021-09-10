@@ -9,6 +9,7 @@ from timer import Timer
 from score import Score
 from sound import Sound
 from animated_sprite import AnimatedSprite
+from card import Card
 
 pygame.init()
 pygame.mixer.init()
@@ -39,6 +40,8 @@ CARD_BACK = pygame.transform.scale(CARD_BACK, (400, 300))
 SPADES = pygame.image.load("Assets/CardImages/spades.png")
 SPADES = pygame.transform.scale(SPADES, (30, 30))
 
+CARD_ASSETS = [CARD_FRONT, CARD_BACK, SPADES, card_word_font, BLACK]
+
 LOGO = pygame.image.load("Assets/logo.png")
 LOGO = pygame.transform.scale(LOGO, (480, 171))
 
@@ -52,89 +55,6 @@ players = 3
 with open(PLAYER_LOCS_FILE, "w") as file:
     for i in range(players):
         file.write("100 " + str(100 + i * 50) + "\n")
-
-
-class Card:
-    
-    def __init__(self, list_of_items, ace_index):    
-        self.up = False
-        self.down = True
-        self.HEIGHT = 300
-        self.WIDTH = 400
-        self.xpos = (WIDTH - self.WIDTH) / 2
-        self.xpos_move = 0
-        self.ypos_fdown = (HEIGHT - (self.HEIGHT) * 2) / 3
-        self.ypos_fup =  (2 * ((HEIGHT - (self.HEIGHT) * 2) / 3)) + self.HEIGHT
-        self.ypos_move = 0
-        self.card_back = CARD_BACK
-        self.card_front = CARD_FRONT
-        self.ace = SPADES
-        self.mask = self.card_back.get_rect()
-        self.people_item = list_of_items[0]
-        self.world_item = list_of_items[1]
-        self.object_item = list_of_items[2]
-        self.action_item = list_of_items[3]
-        self.nature_item = list_of_items[4]
-        self.random_item = list_of_items[5]
-        self.ace_index = ace_index[0]
-        self.list_of_items = [self.people_item, self.world_item, self.object_item, self.action_item, self.nature_item, self.random_item]
- 
-    def __str__(self):
-        string = str(self.list_of_items) + " Ace Category: " + str(self.ace_index)
-        return string
-
-    def draw_fdown(self, window):
-        #draws facedown deck to the screen
-        if self.down == True:
-            window.blit(self.card_back, (self.xpos, self.ypos_fdown))
-
-    def draw_open_card(self, window, x_pos, y_pos):
-        #draws card in hand to screen
-        window.blit(self.card_front, (x_pos, y_pos))
-        category_0 = card_word_font.render(self.list_of_items[0], 1, BLACK)
-        category_1 = card_word_font.render(self.list_of_items[1], 1, BLACK)
-        category_2 = card_word_font.render(self.list_of_items[2], 1, BLACK)
-        category_3 = card_word_font.render(self.list_of_items[3], 1, BLACK)
-        category_4 = card_word_font.render(self.list_of_items[4], 1, BLACK)
-        category_5 = card_word_font.render(self.list_of_items[5], 1, BLACK)
-
-        list_of_cat = [category_0, category_1, category_2, category_3, category_4, category_5]
-
-        # drawing open card items
-        for i in range(len(list_of_cat)): 
-            initial_y_pos = y_pos + 38 - list_of_cat[i].get_height()      
-            y_gaps = 7.5 * i
-            center_box = ((36 - list_of_cat[i].get_height()) / 2) + ((i) * 36)
-            window.blit(list_of_cat[i], (x_pos + 60, initial_y_pos + center_box + y_gaps))
-
-            if i == self.ace_index:
-                window.blit(self.ace, (x_pos + 370 - 17.4, initial_y_pos + center_box + y_gaps - 5))
-
-    def get_x_coords(self):
-        return (self.xpos, self.xpos + self.WIDTH)
-
-    def get_y_coords_fup(self):
-        return (self.ypos_fup, self.ypos_fup + self.HEIGHT)
-
-    def get_y_coords_fdown(self):
-        return (self.ypos_fdown, self.ypos_fdown + self.HEIGHT)
-
-    def add_x_coords(self, value):
-        self.xpos += value
-
-    def add_y_coords_fup(self, value):
-        self.ypos_fup += value
-
-    def add_y_coords_fdown(self, value):
-        self.ypos_fdown += value
-
-    def set_up_true(self):
-        self.up = True
-        self.down = False
-
-    def set_down_true(self):
-        self.up = False
-        self.down = True
 
 
 #Loading images for animated sprites
@@ -195,8 +115,6 @@ def create_cards(list_of_item_lists):
 
     #getting shortest list length
     num_cards, shortest_list = get_end_range(list_of_item_lists)
-    print(num_cards, "- number of cards")
-    print(items_list[shortest_list])
 
     #creating cards
     for i in range(num_cards):
@@ -211,7 +129,7 @@ def create_cards(list_of_item_lists):
 
         #getting a random category for the ace
         rand_index_for_ace = generate_random_indexes(1, 0, 6)
-        card = Card(list_of_items, rand_index_for_ace)
+        card = Card(list_of_items, rand_index_for_ace, WIDTH, HEIGHT, CARD_ASSETS)
         list_of_card_objects.append(card)
 
     return list_of_card_objects
@@ -567,8 +485,7 @@ def main_game(deck_of_cards):
             skip_button.get_event(event)
             back_button.get_event(event)
             board_button.get_event(event)
-
-        
+   
         draw_game(WIN, deck_of_cards, open_card, start_button, timer, skip_button, back_button, board_button)
         score.draw(WIN)
         pygame.display.update()
@@ -576,12 +493,3 @@ def main_game(deck_of_cards):
 #create deck of cards when program starts and starts at main menu
 deck_of_cards = generate_deck()
 main_menu()
-
-    
-    
-
-
-
-
-
-

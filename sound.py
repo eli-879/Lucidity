@@ -6,7 +6,7 @@ class Sound:
         self.process_kwargs(kwargs)
         self.rect = pygame.Rect(rect)
         self.image = pygame.Surface(self.rect.size).convert()
-        self.sound = 0.5
+        
         self.sound_text = self.font.render(str(int(self.sound * 100)) + "%", True, (255, 255, 255))
         self.sound_rect = self.sound_text.get_rect(center = self.rect.center)
         self.title = self.font.render(self.text, True, (255, 255, 255))
@@ -41,7 +41,6 @@ class Sound:
 
             self.sound_text = self.font.render(str(int(self.sound * 100)) + "%", True, (255,255,255))
             self.sound_rect = self.sound_text.get_rect(center = self.rect.center)
-            print(self.sound)
 
     def decrease_sound(self):
         if self.sound > 0:
