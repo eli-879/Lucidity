@@ -47,12 +47,12 @@ class MainMenu:
                     pass
                     #game.getStates().append(OptionsMenu(game.getWindow()))
                 elif (button == self.quit_button):
-                    pygame.quit()
+                    self.quit = True
 
     def update(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                self.quit = True
 
             self.updateButtons(event)
             
@@ -210,7 +210,7 @@ class BoardMenu:
         dt = self.clock.tick(60) / 1000 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                self.quit = True
 
             self.updateButtons(event)
             self.updateDinos(event)
@@ -274,7 +274,7 @@ class MainGame:
     def update(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                self.quit = True
 
             self.updateButtons(event)
             self.updateCard(event)
@@ -351,6 +351,7 @@ class MainGame:
 
 class Game:
     def __init__(self):
+        self.running = True
         self.states = []
         self.WIDTH, self.HEIGHT = 1280, 720
         self.WIN = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
@@ -427,12 +428,11 @@ class Game:
     def update(self):
         if (len(self.states) > 0):
             top = self.states[-1]
-
-            top.update()
-
             if (top.get_quit()):
                 pygame.quit()
-        
+                self.running = False
+            else:
+                top.update()
         else:
             pygame.quit()
         
@@ -447,13 +447,15 @@ class Game:
         pygame.display.update()  
 
     def run(self):
-        while True:
-            self.update()
+        while self.running:
             self.draw()
+            self.update()
+            
+            
 
 #create deck of cards when program starts and starts at main menu
 game = Game()
 game.initStates()
 game.run()
 
-pygame.quit
+pygame.quit()

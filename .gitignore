@@ -1,1 +1,4 @@
-_pycache__/
+__pycache__/
+build/
+dist/
+lucidity.spec
