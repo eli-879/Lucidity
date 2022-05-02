@@ -40,6 +40,11 @@ class Button:
         if self.is_hovering():
             self.command()
 
+    def is_clicked(self, event):
+        if self.is_hovering() and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            return True
+        return False
+
     def is_hovering(self):
         if self.rect.collidepoint(pygame.mouse.get_pos()):
             return True

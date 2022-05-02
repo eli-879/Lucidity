@@ -56,7 +56,7 @@ class Timer:
 
             if self.counter == 0:
                 pygame.mixer.Sound.play(self.beep, loops=2)
-                score.reset_score()
+                
             
             if self.counter <= 0:
                 self.timer = pygame.time.set_timer(self.timer_event, 0)
